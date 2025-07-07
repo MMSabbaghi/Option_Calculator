@@ -1,108 +1,66 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>محاسبه قیمت خروج و حد ضرر</title>
-    <style>
-        body {
-            font-family: "Segoe UI", sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            direction: rtl;
-        }
-        .container {
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            width: 400px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        label {
-            margin-top: 10px;
-            display: block;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            font-family: "Segoe UI", sans-serif;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .result {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        .result p {
-            margin: 5px 0;
-        }
-    </style>
-</head>
-<body>
+     <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>محاسبه‌گر آپشن</h1>
+      <hr>
 
-<div class="container">
-    <h1>محاسبه‌گر آپشن</h1>
+      <label for="premium">پریمیوم (قیمت خرید به تومان):</label>
+      <input type="number" id="premium" placeholder="مثال: 1500" />
 
-    <label for="premium">پریمیوم (قیمت خرید به تومان):</label>
-    <input type="number" id="premium" placeholder="مثال: 1500">
+      <label for="targetProfit">درصد سود هدف از پوزیشن (%):</label>
+      <input type="number" id="targetProfit" placeholder="مثال: 2" />
 
-    <label for="targetProfit">درصد سود هدف از پوزیشن (%):</label>
-    <input type="number" id="targetProfit" placeholder="مثال: 2">
+      <label for="stopLoss">درصد حد ضرر از پوزیشن (%):</label>
+      <input type="number" id="stopLoss" placeholder="مثال: 1" />
 
-    <label for="stopLoss">درصد حد ضرر از پوزیشن (%):</label>
-    <input type="number" id="stopLoss" placeholder="مثال: 1">
+      <button onclick="calculate()">محاسبه</button>
 
-    <button onclick="calculate()">محاسبه</button>
-
-    <div class="result" id="result" style="display: none;">
-        <p><strong>اسپرد برای یک قرارداد:</strong> <span id="spread"></span> تومان</p>
-        <p><strong>قیمت فروش هدف (با احتساب اسپرد):</strong> <span id="targetPrice"></span> تومان</p>
-        <p><strong>قیمت حد ضرر (با احتساب اسپرد):</strong> <span id="stopLossPrice"></span> تومان</p>
+      <div class="result" id="result" style="display: none">
+        <p>
+          <strong>اسپرد برای یک قرارداد:</strong>
+          <span id="spread"></span> تومان
+        </p>
+        <p>
+          <strong>قیمت فروش هدف (با احتساب اسپرد):</strong>
+          <span id="targetPrice"></span> تومان
+        </p>
+        <p>
+          <strong>قیمت حد ضرر (با احتساب اسپرد):</strong>
+          <span id="stopLossPrice"></span> تومان
+        </p>
+      </div>
     </div>
-</div>
 
-<script>
-    function calculate() {
+    <script>
+      function calculate() {
         var premium = parseFloat(document.getElementById("premium").value);
-        var targetProfit = parseFloat(document.getElementById("targetProfit").value);
+        var targetProfit = parseFloat(
+          document.getElementById("targetProfit").value
+        );
         var stopLoss = parseFloat(document.getElementById("stopLoss").value);
 
         if (isNaN(premium) || isNaN(targetProfit) || isNaN(stopLoss)) {
-            alert("لطفاً تمام فیلدها را به‌درستی پر کنید.");
-            return;
+          alert("لطفاً تمام فیلدها را به‌درستی پر کنید.");
+          return;
         }
 
-        var spread = 0.00103 * premium;  // فقط برای یک قرارداد
+        var spread = 0.00103 * premium; // فقط برای یک قرارداد
         var targetPrice = premium * (1 + targetProfit / 100) + spread;
         var stopLossPrice = premium * (1 - stopLoss / 100) - spread;
 
         document.getElementById("spread").textContent = spread.toFixed(2);
-        document.getElementById("targetPrice").textContent = targetPrice.toFixed(2);
-        document.getElementById("stopLossPrice").textContent = stopLossPrice.toFixed(2);
+        document.getElementById("targetPrice").textContent =
+          targetPrice.toFixed(2);
+        document.getElementById("stopLossPrice").textContent =
+          stopLossPrice.toFixed(2);
         document.getElementById("result").style.display = "block";
-    }
-</script>
-
-</body>
+      }
+    </script>
+  </body>
 </html>

@@ -1,0 +1,69 @@
+@font-face {
+  font-family: "Shabnam";
+  src: url("font/Shabnam.eot") format("eot"),
+    url("font/Shabnam.woff") format("woff"),
+    url("font/Shabnam.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+*{
+    font-family: "Shabnam", "Segoe UI", sans-serif;
+}
+
+body {
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  direction: rtl;
+}
+.container {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  width: 400px;
+}
+
+.container h1 {
+  text-align: center;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+label {
+  margin-top: 10px;
+  display: block;
+}
+input,
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+button:hover {
+  background-color: #0056b3;
+}
+.result {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+}
+.result p {
+  margin: 5px 0;
+}
