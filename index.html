@@ -1,66 +1,55 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <title>محاسبه قیمت خروج و حد ضرر</title>
-     <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <div class="container">
-      <h1>محاسبه‌گر آپشن</h1>
-      <hr>
 
-      <label for="premium">پریمیوم (قیمت خرید به تومان):</label>
-      <input type="number" id="premium" placeholder="مثال: 1500" />
+<head>
+  <meta charset="UTF-8" />
+  <title>ماشین حساب سود و ضرر آپشن</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 
-      <label for="targetProfit">درصد سود هدف از پوزیشن (%):</label>
-      <input type="number" id="targetProfit" placeholder="مثال: 2" />
+<body>
+  <div class="container">
+    <h1>ماشین حساب آپشن</h1>
 
-      <label for="stopLoss">درصد حد ضرر از پوزیشن (%):</label>
-      <input type="number" id="stopLoss" placeholder="مثال: 1" />
-
-      <button onclick="calculate()">محاسبه</button>
-
-      <div class="result" id="result" style="display: none">
-        <p>
-          <strong>اسپرد برای یک قرارداد:</strong>
-          <span id="spread"></span> تومان
-        </p>
-        <p>
-          <strong>قیمت فروش هدف (با احتساب اسپرد):</strong>
-          <span id="targetPrice"></span> تومان
-        </p>
-        <p>
-          <strong>قیمت حد ضرر (با احتساب اسپرد):</strong>
-          <span id="stopLossPrice"></span> تومان
-        </p>
-      </div>
+    <div class="switcher">
+      <button id="btnProfit" class="active">محاسبه سود خالص معامله</button>
+      <button id="btnCalc">محاسبه حد سود و ضرر</button>
     </div>
 
-    <script>
-      function calculate() {
-        var premium = parseFloat(document.getElementById("premium").value);
-        var targetProfit = parseFloat(
-          document.getElementById("targetProfit").value
-        );
-        var stopLoss = parseFloat(document.getElementById("stopLoss").value);
+    <div>
+      <div id="formCalc" style="display:none;">
+        <label>پریمیوم (ریال):</label>
+        <input id="premium" type="text" placeholder="پریمیوم">
+        <label>درصد سود (%):</label>
+        <input id="profitPercent" type="text" placeholder="درصد سود">
+        <label>درصد ضرر (%):</label>
+        <input id="lossPercent" type="text" placeholder="درصد ضرر">
+        <button id="calcBtn">محاسبه</button>
+        <div id="calcResult" class="result" style="display:none;"></div>
+      </div>
+      <div id="formProfit">
+        <div id="stepsList">
+          <div class="step">
+            <div>
+              <label>قیمت خرید:</label>
+              <input class="buyPrice" type="text" placeholder="قیمت خرید">
+            </div>
+            <div>
+              <label>تعداد قرارداد:</label>
+              <input class="buyQty" type="text" placeholder="تعداد قراردادها">
+            </div>
+          </div>
+        </div>
+        <button class="add-step" onclick="addStep()">
+          +
+        </button>
+        <label>قیمت فروش:</label>
+        <input id="sellPrice" type="text" placeholder="قیمت فروش">
+        <button id="profitBtn">محاسبه سود</button>
+        <div id="profitResult" class="result" style="display:none;"></div>
+      </div>
+    </div>
+    <script src="./app.js"></script>
+</body>
 
-        if (isNaN(premium) || isNaN(targetProfit) || isNaN(stopLoss)) {
-          alert("لطفاً تمام فیلدها را به‌درستی پر کنید.");
-          return;
-        }
-
-        var spread = 0.00103 * premium; // فقط برای یک قرارداد
-        var targetPrice = premium * (1 + targetProfit / 100) + spread;
-        var stopLossPrice = premium * (1 - stopLoss / 100) - spread;
-
-        document.getElementById("spread").textContent = spread.toFixed(2);
-        document.getElementById("targetPrice").textContent =
-          targetPrice.toFixed(2);
-        document.getElementById("stopLossPrice").textContent =
-          stopLossPrice.toFixed(2);
-        document.getElementById("result").style.display = "block";
-      }
-    </script>
-  </body>
 </html>
