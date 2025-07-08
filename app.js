@@ -12,17 +12,21 @@ function toPersianDigits(str) {
 
 // جداکننده هزارگان فارسی (برای تومان)
 function formatWithSeparatorsFa(num) {
-  const rounded = Math.round(num);
-  return toPersianDigits(rounded.toLocaleString("fa-IR"));
+  return toPersianDigits(num.toLocaleString("fa-IR"));
 }
 
 // فارسی کردن اینپوت ها
-const toPersianInput = (input) => {
+function toPersianInput (input) {
   let raw = fromPersianDigits(input.value);
   raw = raw.replace(/[^\d]/g, ""); // فقط عدد
   raw = raw.replace(/^0+/, ""); // حذف صفر اول
   input.value = toPersianDigits(raw);
 };
+
+// محاسبه اسپرد رفت و برگشت (۰.۲۶٪)
+function calculateSpread(price) {
+  return price * 0.00206;
+}
 
 // جلوگیری از وارد کردن غیر عدد و صفر پیشوندی
 document
@@ -53,22 +57,49 @@ function toggle(formId, btnId) {
 }
 
 // فرم ۱: محاسبه تارگت و حد ضرر
-document.getElementById("calcBtn").addEventListener("click", () => {
-  const p = +fromPersianDigits(premium.value); // ریال
-  const r = +fromPersianDigits(profitPercent.value);
-  const l = +fromPersianDigits(lossPercent.value);
+document
+  .getElementById("calcBtn")
+  .addEventListener("click", handleTargetCalculation);
 
-  const spr = Math.round(0.00103 * p); // ریال
-  const sell = Math.round(p * (1 + r / 100) + spr);
-  const stop = Math.round(p * (1 - l / 100) - spr);
+// محاسبه و نمایش نتایج فرم اول
+function handleTargetCalculation() {
+  const p = parseInputValue("premium"); // قیمت اولیه (ریال)
+  const r = parseInputValue("profitPercent"); // درصد سود هدف
+  const l = parseInputValue("lossPercent"); // درصد حد ضرر
 
-  calcResult.innerHTML = `
-    اسپرد: ${formatWithSeparatorsFa(spr / 10)} تومان<br>+
-    قیمت تارگت: ${formatWithSeparatorsFa(sell / 10)} تومان<br>+
-    حد ضرر: ${formatWithSeparatorsFa(stop / 10)} تومان
- `;
-  calcResult.style.display = "block";
-});
+  const spread = calculateSpread(p); // اسپرد به ریال
+  const sellTarget = calculateSellTarget(p, r, spread);
+  const stopLoss = calculateStopLoss(p, l, spread);
+
+  renderCalcResults(spread, sellTarget, stopLoss);
+}
+
+// استخراج مقدار عددی از input با تبدیل از فارسی
+function parseInputValue(id) {
+  return +fromPersianDigits(document.getElementById(id).value || "0");
+}
+
+// قیمت فروش هدف = قیمت خرید × (۱ + درصد سود) + اسپرد
+function calculateSellTarget(price, profitPercent, spread) {
+  return price * (1 + profitPercent / 100) + spread;
+}
+
+// حد ضرر = قیمت خرید × (۱ - درصد ضرر) - اسپرد
+function calculateStopLoss(price, lossPercent, spread) {
+  return price * (1 - lossPercent / 100) - spread;
+}
+
+// نمایش نتایج نهایی
+function renderCalcResults(spread, sell, stop) {
+  const resultHTML = ` 
+    اسپرد: ${formatWithSeparatorsFa(spread)} ریال<br>
+    قیمت تارگت: ${formatWithSeparatorsFa(sell)} ریال<br>
+    حد ضرر: ${formatWithSeparatorsFa(stop)} ریال
+  `;
+  const resultBox = document.getElementById("calcResult");
+  resultBox.innerHTML = resultHTML;
+  resultBox.style.display = "block";
+}
 
 // فرم ۲: پله‌ها
 function addStep() {
@@ -104,8 +135,8 @@ document.getElementById("profitBtn").addEventListener("click", () => {
 
   const contractSize = 1000;
   const avgBuy = totalCost / totalQty; // ریال
-  const spreadEntry = 0.00103 * avgBuy;
-  const spreadExit = 0.00103 * sell;
+  const spreadEntry = calculateSpread(avgBuy) / 2;
+  const spreadExit = calculateSpread(sell) / 2;
   const totalSpread = spreadEntry + spreadExit;
 
   const profitPerShare = sell - avgBuy - totalSpread;
