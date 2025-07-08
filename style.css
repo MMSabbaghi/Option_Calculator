@@ -12,14 +12,14 @@
 }
 
 :root {
-  --primary: #4A90E2;
-  --primary-dark: #357ABD;
+  --primary: #4a90e2;
+  --primary-dark: #357abd;
   --danger: #e74c3c;
   --light: #f9f9f9;
   --border: #ddd;
   --radius: 12px;
   --transition: 0.3s ease;
-  --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
@@ -133,8 +133,8 @@ button:hover {
   color: white;
 }
 
-.add-step , 
-.add-step:hover{
+.add-step,
+.add-step:hover {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -164,10 +164,10 @@ button:hover {
   flex: 1;
 }
 
-.remove-step {
-  position: absolute;
-  top: -10px;
-  left: -10px;
+.remove-step,
+.close {
+  display: inline-block;
+  text-align: center;
   background-color: var(--danger);
   color: white;
   border: none;
@@ -180,13 +180,93 @@ button:hover {
   padding: 0;
 }
 
+.remove-step{
+  position: absolute;
+  top: -10px;
+  left: -10px;
+}
+
+.trade-item {
+  background-color: var(--light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.delete-btn {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  position: relative;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 90%;
+  max-width: 500px;
+}
+
+.action-btns {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.action-btns button {
+  width: 100%;
+}
+
+#saveTradeBtn .loader {
+  width: 15px;
+  height: 15px;
+  border: 2px solid #fff;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+  margin-left: 2px;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 20px;
-    width: 95%;
+    width: 90%;
   }
 
-  input, button {
+  input,
+  button {
     font-size: 0.9rem;
   }
 }

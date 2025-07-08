@@ -1,3 +1,5 @@
+const SHEETDB_API = "https://sheetdb.io/api/v1/4xkud7vrc6wtz";
+
 // تبدیل اعداد فارسی به انگلیسی
 function fromPersianDigits(str) {
   return (str + "")
@@ -10,32 +12,25 @@ function toPersianDigits(str) {
   return (str + "").replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 }
 
-// جداکننده هزارگان فارسی (برای تومان)
+// جداکننده هزارگان فارسی
 function formatWithSeparatorsFa(num) {
   return toPersianDigits(num.toLocaleString("fa-IR"));
 }
 
-// فارسی کردن اینپوت ها
-function toPersianInput (input) {
+// فارسی کردن اینپوت‌ها
+function toPersianInput(input) {
   let raw = fromPersianDigits(input.value);
-  raw = raw.replace(/[^\d]/g, ""); // فقط عدد
-  raw = raw.replace(/^0+/, ""); // حذف صفر اول
+  raw = raw.replace(/[^\d]/g, "");
+  raw = raw.replace(/^0+/, "");
   input.value = toPersianDigits(raw);
-};
+}
 
-// محاسبه اسپرد رفت و برگشت (۰.۲۶٪)
+// کارمزد رفت و برگشت
 function calculateSpread(price) {
   return price * 0.00206;
 }
 
-// جلوگیری از وارد کردن غیر عدد و صفر پیشوندی
-document
-  .querySelectorAll("input[type='text']")
-  .forEach((input) =>
-    input.addEventListener("input", () => toPersianInput(input))
-  );
-
-// سوییچ بین فرم‌ها
+// سوییچ فرم‌ها
 document
   .getElementById("btnCalc")
   .addEventListener("click", () => toggle("formCalc", "btnCalc"));
@@ -56,102 +51,205 @@ function toggle(formId, btnId) {
   document.getElementById("profitResult").style.display = "none";
 }
 
-// فرم ۱: محاسبه تارگت و حد ضرر
-document
-  .getElementById("calcBtn")
-  .addEventListener("click", handleTargetCalculation);
+// جلوگیری از وارد کردن غیر عدد
+document.querySelectorAll("input[type='text']").forEach((input) => {
+  input.addEventListener("input", () => toPersianInput(input));
+});
 
-// محاسبه و نمایش نتایج فرم اول
-function handleTargetCalculation() {
-  const p = parseInputValue("premium"); // قیمت اولیه (ریال)
-  const r = parseInputValue("profitPercent"); // درصد سود هدف
-  const l = parseInputValue("lossPercent"); // درصد حد ضرر
+// فرم اول: محاسبه تارگت و حد ضرر
+document.getElementById("calcBtn").addEventListener("click", () => {
+  const p = parseInputValue("premium");
+  const r = parseInputValue("profitPercent");
+  const l = parseInputValue("lossPercent");
 
-  const spread = calculateSpread(p); // اسپرد به ریال
-  const sellTarget = calculateSellTarget(p, r, spread);
-  const stopLoss = calculateStopLoss(p, l, spread);
+  const spread = calculateSpread(p);
+  const sellTarget = p * (1 + r / 100) + spread;
+  const stopLoss = p * (1 - l / 100) - spread;
 
-  renderCalcResults(spread, sellTarget, stopLoss);
-}
+  const resultHTML = `
+    کارمزد: ${formatWithSeparatorsFa(spread)} ریال<br>
+    قیمت تارگت: ${formatWithSeparatorsFa(sellTarget)} ریال<br>
+    حد ضرر: ${formatWithSeparatorsFa(stopLoss)} ریال
+    `;
+  const resultBox = document.getElementById("calcResult");
+  resultBox.innerHTML = resultHTML;
+  resultBox.style.display = "block";
+});
 
-// استخراج مقدار عددی از input با تبدیل از فارسی
 function parseInputValue(id) {
   return +fromPersianDigits(document.getElementById(id).value || "0");
 }
 
-// قیمت فروش هدف = قیمت خرید × (۱ + درصد سود) + اسپرد
-function calculateSellTarget(price, profitPercent, spread) {
-  return price * (1 + profitPercent / 100) + spread;
-}
-
-// حد ضرر = قیمت خرید × (۱ - درصد ضرر) - اسپرد
-function calculateStopLoss(price, lossPercent, spread) {
-  return price * (1 - lossPercent / 100) - spread;
-}
-
-// نمایش نتایج نهایی
-function renderCalcResults(spread, sell, stop) {
-  const resultHTML = ` 
-    اسپرد: ${formatWithSeparatorsFa(spread)} ریال<br>
-    قیمت تارگت: ${formatWithSeparatorsFa(sell)} ریال<br>
-    حد ضرر: ${formatWithSeparatorsFa(stop)} ریال
-  `;
-  const resultBox = document.getElementById("calcResult");
-  resultBox.innerHTML = resultHTML;
-  resultBox.style.display = "block";
-}
-
-// فرم ۲: پله‌ها
+// فرم دوم: افزودن پله جدید
 function addStep() {
   const div = document.createElement("div");
   div.className = "step";
   div.innerHTML = `
     <button class="remove-step" onclick="removeStep(this)">&times;</button>
-    <div><label>قیمت خرید:</label><input class="buyPrice" type="text" oninput="toPersianInput(this)"></div>
-    <div><label>تعداد قرارداد:</label><input class="buyQty" type="text" oninput="toPersianInput(this)"></div>
-    `;
-  stepsList.appendChild(div);
+    <div><label>قیمت خرید:</label><input class="buyPrice" type="text" placeholder="قیمت خرید" oninput="toPersianInput(this)"></div>
+    <div><label>تعداد قرارداد:</label><input class="buyQty" type="text"  placeholder="تعداد قراردادها" oninput="toPersianInput(this)"></div>
+  `;
+  document.getElementById("stepsList").appendChild(div);
 }
 
 function removeStep(btn) {
   btn.parentElement.remove();
 }
 
-// فرم ۲: محاسبه سود
-document.getElementById("profitBtn").addEventListener("click", () => {
-  const sell = +fromPersianDigits(sellPrice.value); // ریال
-  const steps = document.querySelectorAll(".step");
-  let totalCost = 0;
-  let totalQty = 0;
+async function saveTradeToSheet(trade) {
+  try {
+    await fetch(SHEETDB_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: trade }),
+    });
+    alert("معامله با موفقیت ثبت شد.");
+  } catch (error) {
+    alert("خطا در ذخیره‌سازی داده‌ها: ");
+  }
+}
 
-  steps.forEach((s) => {
-    const pr = +fromPersianDigits(s.querySelector(".buyPrice").value); // ریال
-    const qt = +fromPersianDigits(s.querySelector(".buyQty").value);
-    totalCost += pr * qt;
-    totalQty += qt;
+const calculateTradeResults = ({ steps, sellPriceVal }) => {
+  if (!sellPriceVal || steps.length === 0) return;
+  let totalCost = 0,
+    totalQty = 0;
+
+  steps.forEach(({ price, qty }) => {
+    totalCost += price * qty;
+    totalQty += qty;
   });
 
-  if (totalQty <= 0) return alert("تعداد باید بیشتر از صفر باشد");
-
   const contractSize = 1000;
-  const avgBuy = totalCost / totalQty; // ریال
-  const spreadEntry = calculateSpread(avgBuy) / 2;
-  const spreadExit = calculateSpread(sell) / 2;
-  const totalSpread = spreadEntry + spreadExit;
+  const avgBuy = totalCost / totalQty;
+  const spread = calculateSpread(avgBuy);
+  const profit = (sellPriceVal - avgBuy - spread) * totalQty;
+  const percent = ((sellPriceVal - avgBuy - spread) / avgBuy) * 100;
 
-  const profitPerShare = sell - avgBuy - totalSpread;
-  const netProfit = profitPerShare * totalQty * contractSize; // ریال
-  const invested = totalCost * contractSize; // ریال
-  const investedWithSpread = invested + totalSpread * totalQty * contractSize;
+  return {
+    spread : spread * contractSize * totalQty,
+    profit : profit * contractSize,
+    percent,
+    steps,
+  };
+};
 
-  const profitPercent = (netProfit / invested) * 100;
+const getTradeFormData = () => {
+  const sellPriceVal = +fromPersianDigits(
+    document.getElementById("sellPrice").value
+  );
+  const stepEls = document.querySelectorAll(".step");
+  const steps = [];
 
-  profitResult.innerHTML = `
-    کل سرمایه‌گذاری + اسپرد: ${formatWithSeparatorsFa(
-      investedWithSpread / 10
-    )} تومان<br>+
-    سود خالص: ${formatWithSeparatorsFa(netProfit / 10)} تومان<br>+
-    درصد سود خالص: ${toPersianDigits(profitPercent.toFixed(2))}٪
+  stepEls.forEach((el) => {
+    const price = +fromPersianDigits(el.querySelector(".buyPrice").value);
+    const qty = +fromPersianDigits(el.querySelector(".buyQty").value);
+    if (!price || !qty) return;
+    steps.push({
+      id: crypto.randomUUID(),
+      price,
+      qty,
+    });
+  });
+
+  return {
+    steps,
+    sellPriceVal,
+  };
+};
+
+const emptyForm = () => {
+  document.getElementById("sellPrice").value = null;
+  const rBox = document.getElementById("profitResult");
+  rBox.style.display = "none";
+  document.getElementById("stepsList").innerHTML = `
+  <div class="step">
+            <div>
+              <label>قیمت خرید:</label>
+              <input class="buyPrice" type="text" placeholder="قیمت خرید">
+            </div>
+            <div>
+              <label>تعداد قرارداد:</label>
+              <input class="buyQty" type="text" placeholder="تعداد قراردادها">
+            </div>
+          </div>
+  `;
+};
+
+document.getElementById("saveTradeBtn").addEventListener("click", async (e) => {
+  const { profit, percent, steps } = calculateTradeResults(getTradeFormData());
+
+  const trade = {
+    id: Date.now().toString(),
+    datetime: new Date(),
+    profit,
+    percent,
+    steps: JSON.stringify(steps),
+  };
+  e.target.disabled = true;
+  e.target.innerHTML = `<span class="loader"></span>`;
+  await saveTradeToSheet(trade);
+  e.target.disabled = false;
+  e.target.innerHTML = "ذخیره معامله";
+  emptyForm();
+});
+
+// محاسبه و ذخیره سود معامله
+document.getElementById("profitBtn").addEventListener("click", () => {
+  const rBox = document.getElementById("profitResult");
+  const { spread, profit, percent } = calculateTradeResults(getTradeFormData());
+  rBox.innerHTML = `
+   سود خالص : ${formatWithSeparatorsFa(+profit / 10)} تومان <br>
+   درصد سود خالص : ${formatWithSeparatorsFa(+percent.toFixed(2))} % <br>
+    کارمزد کل: ${formatWithSeparatorsFa(+spread / 10)} تومان
     `;
-  profitResult.style.display = "block";
+  rBox.style.display = "block";
+});
+
+function openModal() {
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+}
+
+// نمایش معاملات ثبت‌شده
+document.getElementById("showTradesBtn").addEventListener("click", async () => {
+  openModal();
+  const container = document.getElementById("tradesList");
+  container.innerHTML = "در حال بارگذاری...";
+  container.style.display = "block";
+
+  const res = await fetch(SHEETDB_API);
+  const data = await res.json();
+
+  container.innerHTML = data
+    .reverse()
+    .map((row) => {
+      const stepsArr = JSON.parse(row.steps || "[]")
+        .map(
+          (s) =>
+            `قیمت: ${formatWithSeparatorsFa(
+              s.price
+            )} | تعداد: ${formatWithSeparatorsFa(s.qty)}`
+        )
+        .join("<br>");
+
+      return `
+      <div class="trade-item" >
+        <strong>زمان:</strong> ${new Date(row.datetime).toLocaleDateString(
+          "fa-IR"
+        )}<br>
+        <strong> درصد سود خالص :</strong> ${formatWithSeparatorsFa(
+          Number(row.percent).toFixed(2)
+        )} % <br>
+        <strong> سود خالص </strong> ${formatWithSeparatorsFa(
+          +row.profit / 10
+        )} تومان<br>
+        <strong>پله‌ها:</strong><br>${stepsArr}
+        <br>
+      </div>
+      `;
+    })
+    .join("");
 });

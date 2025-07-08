@@ -46,10 +46,27 @@
         </button>
         <label>قیمت فروش:</label>
         <input id="sellPrice" type="text" placeholder="قیمت فروش">
-        <button id="profitBtn">محاسبه سود</button>
+        <div class="action-btns">          
+          <button id="profitBtn">محاسبه سود</button>
+          <button id="saveTradeBtn">
+            ذخیره معامله
+          </button>
+          <button id="showTradesBtn">نمایش معاملات </button>
+        </div>
         <div id="profitResult" class="result" style="display:none;"></div>
+
       </div>
     </div>
+
+      <div id="modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div style="display: flex; flex-direction: row-reverse; justify-content: space-between;">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3 style="margin: 0; padding: 0;">لیست معاملات</h3>
+      </div>
+      <ul id="tradesList" style="padding: 0;"></ul>
+    </div>
+  </div>
     <script src="./app.js"></script>
 </body>
 
