@@ -89,14 +89,6 @@ button:hover {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.result {
-  background-color: var(--light);
-  padding: 15px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  color: #333;
-}
-
 .switcher {
   display: flex;
   gap: 0;
@@ -204,16 +196,32 @@ button:hover {
   border-bottom: none;
 }
 
+.result {
+  background-color: var(--light);
+  padding: 15px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  color: #333;
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
 .trade-item-row {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
 }
 
+.result-label,
 .trade-item-label {
   color: #666;
 }
 
+.result-value,
 .trade-item-value {
   color: #111;
 }

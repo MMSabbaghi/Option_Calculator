@@ -56,6 +56,14 @@ document.querySelectorAll("input[type='text']").forEach((input) => {
   input.addEventListener("input", () => toPersianInput(input));
 });
 
+const createResultRow = ({ lbl, val }) => {
+  return `    
+  <div class="result-row">
+            <div class="result-label"> ${lbl}:</div>
+            <div class="result-value">${val} </div>
+  </div>`;
+};
+
 // فرم اول: محاسبه تارگت و حد ضرر
 document.getElementById("calcBtn").addEventListener("click", () => {
   const p = parseInputValue("premium");
@@ -72,9 +80,18 @@ document.getElementById("calcBtn").addEventListener("click", () => {
   const stopLoss = p * (1 - l / 100) - spread;
 
   const resultHTML = `
-    کارمزد: ${formatWithSeparatorsFa(spread)} ریال<br>
-    قیمت تارگت: ${formatWithSeparatorsFa(sellTarget)} ریال<br>
-    حد ضرر: ${formatWithSeparatorsFa(stopLoss)} ریال
+  ${createResultRow({
+    lbl: "کارمزد",
+    val: `${formatWithSeparatorsFa(spread)} ریال`,
+  })}
+  ${createResultRow({
+    lbl: "تارگت",
+    val: `${formatWithSeparatorsFa(sellTarget)} ریال`,
+  })}
+  ${createResultRow({
+    lbl: "حد ضرر",
+    val: `${formatWithSeparatorsFa(stopLoss)} ریال`,
+  })}
     `;
   const resultBox = document.getElementById("calcResult");
   resultBox.innerHTML = resultHTML;
@@ -91,7 +108,7 @@ function addStep() {
   div.className = "step";
   div.innerHTML = `
     <button class="remove-step" onclick="removeStep(this)">&times;</button>
-    <div><label>قیمت خرید:</label><input class="buyPrice" type="text" placeholder="قیمت خرید" oninput="toPersianInput(this)"></div>
+    <div><label>قیمت خرید(ریال):</label><input class="buyPrice" type="text" placeholder="قیمت خرید" oninput="toPersianInput(this)"></div>
     <div><label>تعداد قرارداد:</label><input class="buyQty" type="text"  placeholder="تعداد قراردادها" oninput="toPersianInput(this)"></div>
   `;
   document.getElementById("stepsList").appendChild(div);
@@ -131,10 +148,12 @@ const calculateTradeResults = ({ steps, sellPriceVal }) => {
   const spread = calculateSpread(avgBuy);
   const profit = (sellPriceVal - avgBuy - spread) * totalQty;
   const percent = ((sellPriceVal - avgBuy - spread) / avgBuy) * 100;
+  const totalSpread = spread * contractSize * totalQty;
 
   return {
-    spread: spread * contractSize * totalQty,
+    spread: totalSpread,
     profit: profit * contractSize,
+    totalCost: totalCost * contractSize + totalSpread,
     percent,
   };
 };
@@ -243,14 +262,22 @@ document.getElementById("profitBtn").addEventListener("click", () => {
 
   if (isValid) {
     const rBox = document.getElementById("profitResult");
-    const { spread, profit, percent } = calculateTradeResults(
-      getTradeFormData()
-    );
-    rBox.innerHTML = `
-   سود خالص : ${formatWithSeparatorsFa(+profit / 10)} تومان <br>
-   درصد سود خالص : ${formatWithSeparatorsFa(+percent.toFixed(2))} % <br>
-    کارمزد کل: ${formatWithSeparatorsFa(+spread / 10)} تومان
-    `;
+    const { profit, percent, totalCost } = calculateTradeResults({
+      sellPriceVal,
+      steps,
+    });
+    rBox.innerHTML = `${createResultRow({
+      lbl: "مبلغ کل",
+      val: `${formatWithSeparatorsFa(+totalCost / 10)} تومان`,
+    })}
+  ${createResultRow({
+    lbl: "سود خالص",
+    val: `${formatWithSeparatorsFa(+profit / 10)} تومان`,
+  })}
+  ${createResultRow({
+    lbl: "درصد سود",
+    val: `${formatWithSeparatorsFa(+percent.toFixed(2))}٪`,
+  })}`;
     rBox.style.display = "block";
   } else {
     showToast(msg, "error");
