@@ -126,8 +126,8 @@ const calculateTradeResults = ({ steps, sellPriceVal }) => {
   const percent = ((sellPriceVal - avgBuy - spread) / avgBuy) * 100;
 
   return {
-    spread : spread * contractSize * totalQty,
-    profit : profit * contractSize,
+    spread: spread * contractSize * totalQty,
+    profit: profit * contractSize,
     percent,
     steps,
   };
@@ -213,17 +213,8 @@ function closeModal() {
   document.getElementById("modal").style.display = "none";
 }
 
-// نمایش معاملات ثبت‌شده
-document.getElementById("showTradesBtn").addEventListener("click", async () => {
-  openModal();
-  const container = document.getElementById("tradesList");
-  container.innerHTML = "در حال بارگذاری...";
-  container.style.display = "block";
-
-  const res = await fetch(SHEETDB_API);
-  const data = await res.json();
-
-  container.innerHTML = data
+const renderTradesData = (data) => {
+  return data
     .reverse()
     .map((row) => {
       const stepsArr = JSON.parse(row.steps || "[]")
@@ -252,4 +243,36 @@ document.getElementById("showTradesBtn").addEventListener("click", async () => {
       `;
     })
     .join("");
+};
+
+const calculateTotalProfit = (data) => {
+  let totalProfit = 0;
+  data.forEach((trade) => (totalProfit += +trade.profit));
+  return totalProfit;
+};
+
+// نمایش معاملات ثبت‌شده
+document.getElementById("showTradesBtn").addEventListener("click", async () => {
+  openModal();
+  const container = document.getElementById("tradesList");
+  container.innerHTML = "در حال بارگذاری...";
+  container.style.display = "block";
+
+  const res = await fetch(SHEETDB_API);
+  const data = await res.json();
+  const trades = Array.from(data);
+
+  if ((data.length = 0)) {
+    container.innerHTML = "داده ای یافت نشد.";
+    return;
+  }
+
+  const totalProfit = calculateTotalProfit(trades) / 10;
+
+  container.innerHTML = `
+  <li class="totalProfit"> مجموع سود : ${formatWithSeparatorsFa(
+    totalProfit
+  )} تومان </li>
+  ${renderTradesData(trades)}  
+  `;
 });
