@@ -223,7 +223,7 @@ button:hover {
   font-weight: bold;
 }
 
-.trade-item-profit-percent {
+.trade-item-percent {
   color: var(--primary-dark);
   font-weight: normal;
   margin-right: 4px;
