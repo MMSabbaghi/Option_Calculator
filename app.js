@@ -272,25 +272,34 @@ const renderTradesData = (data) => {
       const stepsArr = JSON.parse(row.steps || "[]")
         .map(
           (s) =>
-            `قیمت: ${formatWithSeparatorsFa(
-              s.price
-            )} | تعداد: ${formatWithSeparatorsFa(s.qty)}`
+            `<div class="trade-item-step">
+                <span>قیمت: ${formatWithSeparatorsFa(s.price)}</span>
+                <span>تعداد: ${formatWithSeparatorsFa(s.qty)}</span>
+            </div>
+        </div>`
         )
-        .join("<br>");
+        .join("");
 
       return `
       <div class="trade-item" >
-        <strong>زمان:</strong> ${new Date(row.datetime).toLocaleDateString(
-          "fa-IR"
-        )}<br>
-        <strong> درصد سود خالص :</strong> ${formatWithSeparatorsFa(
-          Number(row.percent).toFixed(2)
-        )} % <br>
-        <strong> سود خالص </strong> ${formatWithSeparatorsFa(
-          +row.profit / 10
-        )} تومان<br>
-        <strong>پله‌ها:</strong><br>${stepsArr}
-        <br>
+        <div class="trade-item-row">
+            <div class="trade-item-label">تاریخ:</div>
+            <div class="trade-item-value">${new Date(
+              row.datetime
+            ).toLocaleDateString("fa-IR")}</div>
+        </div>
+        <div class="trade-item-row">
+            <div class="trade-item-label">سود خالص:</div>
+            <div class="trade-item-value">
+                <span class="trade-item-profit">${formatWithSeparatorsFa(
+                  +row.profit / 10
+                )} تومان</span>
+                <span class="trade-item-percent">( ${formatWithSeparatorsFa(
+                  Number(row.percent).toFixed(2)
+                )}٪)</span>
+        </div>
+        </div>
+        <div class="trade-item-steplist">${stepsArr}</div>
       </div>
       `;
     })

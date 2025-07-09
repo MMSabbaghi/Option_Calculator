@@ -186,7 +186,59 @@ button:hover {
   left: -10px;
 }
 
-.trade-item,
+.trade-item-steplist {
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.trade-item-step {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--light);
+  font-size: 0.9rem;
+}
+
+.trade-item-step:last-child {
+  border-bottom: none;
+}
+
+.trade-item-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.trade-item-label {
+  color: #666;
+}
+
+.trade-item-value {
+  color: #111;
+}
+
+.trade-item-profit {
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.trade-item-profit-percent {
+  color: var(--primary-dark);
+  font-weight: normal;
+  margin-right: 4px;
+}
+
+.trade-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  background-color: var(--light);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin-bottom: 5px;
+}
+
 .totalProfit {
   background-color: var(--light);
   border: 1px solid var(--border);
