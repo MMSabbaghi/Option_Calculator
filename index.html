@@ -13,7 +13,7 @@
     <h1>ماشین حساب آپشن</h1>
 
     <div class="switcher">
-      <button id="btnProfit" class="active">محاسبه سود خالص معامله</button>
+      <button id="btnProfit" class="active">محاسبه سود خالص </button>
       <button id="btnCalc">محاسبه حد سود و ضرر</button>
     </div>
 
@@ -46,7 +46,7 @@
         </button>
         <label>قیمت فروش:</label>
         <input id="sellPrice" type="text" placeholder="قیمت فروش">
-        <div class="action-btns">          
+        <div class="action-btns">
           <button id="profitBtn">محاسبه سود</button>
           <button id="saveTradeBtn">
             ذخیره معامله
@@ -58,16 +58,17 @@
       </div>
     </div>
 
-      <div id="modal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <div style="display: flex; flex-direction: row-reverse; justify-content: space-between;">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h3 style="margin: 0; padding: 0;">لیست معاملات</h3>
+    <div id="modal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <div style="display: flex; flex-direction: row-reverse; justify-content: space-between;">
+          <span class="close" onclick="closeModal()">&times;</span>
+          <h3 style="margin: 0; padding: 0;">لیست معاملات</h3>
+        </div>
+        <ul id="tradesList" style="padding: 0;">
+        </ul>
       </div>
-      <ul id="tradesList" style="padding: 0;">
-      </ul>
     </div>
-  </div>
+    <script src="./alert.js"></script>
     <script src="./app.js"></script>
 </body>
 

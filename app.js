@@ -62,6 +62,11 @@ document.getElementById("calcBtn").addEventListener("click", () => {
   const r = parseInputValue("profitPercent");
   const l = parseInputValue("lossPercent");
 
+  if (!isValidNumber(p) || !isValidNumber(r) || !isValidNumber(l)) {
+    showToast("تمام فیلد ها را کامل کنید.", "error");
+    return;
+  }
+
   const spread = calculateSpread(p);
   const sellTarget = p * (1 + r / 100) + spread;
   const stopLoss = p * (1 - l / 100) - spread;
@@ -103,9 +108,11 @@ async function saveTradeToSheet(trade) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ data: trade }),
     });
-    alert("معامله با موفقیت ثبت شد.");
+    showToast("معامله با موفقیت ثبت شد.", "success");
+    return { isSucsess: true };
   } catch (error) {
-    alert("خطا در ذخیره‌سازی داده‌ها: ");
+    showToast("خطا در ذخیره سازی داده ", "error");
+    return { isSucsess: false };
   }
 }
 
@@ -129,8 +136,37 @@ const calculateTradeResults = ({ steps, sellPriceVal }) => {
     spread: spread * contractSize * totalQty,
     profit: profit * contractSize,
     percent,
-    steps,
   };
+};
+
+const isValidNumber = (num) => {
+  return typeof num === "number" && num > 0;
+};
+
+const isValidTrade = ({ steps, sellPriceVal }) => {
+  if (!isValidNumber(sellPriceVal)) {
+    return { isValid: false, msg: "قیمت فروش را وارد کنید" };
+  }
+
+  if (!Array.isArray(steps) || steps.length === 0) {
+    return { isValid: false, msg: "حداقل یک پله وارد کنید" };
+  }
+
+  for (let index = 0; index < steps.length; index++) {
+    const { qty, price } = steps[index];
+    const stepNumer = toPersianDigits(index + 1);
+    if (!isValidNumber(price)) {
+      return { isValid: false, msg: `قیمت فروش پله ${stepNumer} را وارد کنید` };
+    }
+    if (!isValidNumber(qty)) {
+      return {
+        isValid: false,
+        msg: `تعداد قرارداد پله ${stepNumer} را وارد کنید`,
+      };
+    }
+  }
+
+  return { isValid: true, msg: "داده معتبر است" };
 };
 
 const getTradeFormData = () => {
@@ -143,7 +179,6 @@ const getTradeFormData = () => {
   stepEls.forEach((el) => {
     const price = +fromPersianDigits(el.querySelector(".buyPrice").value);
     const qty = +fromPersianDigits(el.querySelector(".buyQty").value);
-    if (!price || !qty) return;
     steps.push({
       id: crypto.randomUUID(),
       price,
@@ -176,33 +211,50 @@ const emptyForm = () => {
 };
 
 document.getElementById("saveTradeBtn").addEventListener("click", async (e) => {
-  const { profit, percent, steps } = calculateTradeResults(getTradeFormData());
+  const { sellPriceVal, steps } = getTradeFormData();
+  const { isValid, msg } = isValidTrade({ sellPriceVal, steps });
 
-  const trade = {
-    id: Date.now().toString(),
-    datetime: new Date(),
-    profit,
-    percent,
-    steps: JSON.stringify(steps),
-  };
-  e.target.disabled = true;
-  e.target.innerHTML = `<span class="loader"></span>`;
-  await saveTradeToSheet(trade);
-  e.target.disabled = false;
-  e.target.innerHTML = "ذخیره معامله";
-  emptyForm();
+  if (isValid) {
+    const { profit, percent } = calculateTradeResults(getTradeFormData());
+
+    const trade = {
+      id: Date.now().toString(),
+      datetime: new Date(),
+      profit,
+      percent,
+      steps: JSON.stringify(steps),
+    };
+
+    e.target.disabled = true;
+    e.target.innerHTML = `<span class="loader"></span>`;
+    const { isSucsess } = await saveTradeToSheet(trade);
+    if (isSucsess) emptyForm();
+    e.target.disabled = false;
+    e.target.innerHTML = "ذخیره معامله";
+  } else {
+    showToast(msg, "error");
+  }
 });
 
 // محاسبه و ذخیره سود معامله
 document.getElementById("profitBtn").addEventListener("click", () => {
-  const rBox = document.getElementById("profitResult");
-  const { spread, profit, percent } = calculateTradeResults(getTradeFormData());
-  rBox.innerHTML = `
+  const { sellPriceVal, steps } = getTradeFormData();
+  const { isValid, msg } = isValidTrade({ sellPriceVal, steps });
+
+  if (isValid) {
+    const rBox = document.getElementById("profitResult");
+    const { spread, profit, percent } = calculateTradeResults(
+      getTradeFormData()
+    );
+    rBox.innerHTML = `
    سود خالص : ${formatWithSeparatorsFa(+profit / 10)} تومان <br>
    درصد سود خالص : ${formatWithSeparatorsFa(+percent.toFixed(2))} % <br>
     کارمزد کل: ${formatWithSeparatorsFa(+spread / 10)} تومان
     `;
-  rBox.style.display = "block";
+    rBox.style.display = "block";
+  } else {
+    showToast(msg, "error");
+  }
 });
 
 function openModal() {
