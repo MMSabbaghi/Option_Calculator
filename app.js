@@ -151,7 +151,6 @@ const calculateTradeResults = ({ steps, sellPriceVal }) => {
   const totalSpread = spread * contractSize * totalQty;
 
   return {
-    spread: totalSpread,
     profit: profit * contractSize,
     totalCost: totalCost * contractSize + totalSpread,
     percent,
@@ -234,13 +233,18 @@ document.getElementById("saveTradeBtn").addEventListener("click", async (e) => {
   const { isValid, msg } = isValidTrade({ sellPriceVal, steps });
 
   if (isValid) {
-    const { profit, percent } = calculateTradeResults(getTradeFormData());
+    const { profit, percent, totalCost } = calculateTradeResults({
+      sellPriceVal,
+      steps,
+    });
 
     const trade = {
       id: Date.now().toString(),
       datetime: new Date(),
       profit,
       percent,
+      totalcost: totalCost,
+      sellprice: sellPriceVal,
       steps: JSON.stringify(steps),
     };
 
@@ -308,26 +312,44 @@ const renderTradesData = (data) => {
         .join("");
 
       return `
-      <div class="trade-item" >
-        <div class="trade-item-row">
-            <div class="trade-item-label">تاریخ:</div>
-            <div class="trade-item-value">${new Date(
-              row.datetime
-            ).toLocaleDateString("fa-IR")}</div>
+          <div class="trade-item">
+
+      <div class="trade-item-row">
+        <div class="trade-item-label">تاریخ:</div>
+        <div class="trade-item-value">${new Date(
+          row.datetime
+        ).toLocaleDateString("fa-IR")}
         </div>
-        <div class="trade-item-row">
-            <div class="trade-item-label">سود خالص:</div>
-            <div class="trade-item-value">
-                <span class="trade-item-profit">${formatWithSeparatorsFa(
-                  +row.profit / 10
-                )} تومان</span>
-                <span class="trade-item-percent">( ${formatWithSeparatorsFa(
-                  Number(row.percent).toFixed(2)
-                )}٪)</span>
-        </div>
-        </div>
-        <div class="trade-item-steplist">${stepsArr}</div>
       </div>
+
+      <div class="trade-item-row">
+        <div class="trade-item-label">سود خالص:</div>
+        <div class="trade-item-value">
+          <span class="trade-item-profit">${formatWithSeparatorsFa(
+            +row.profit / 10
+          )} تومان</span>
+          <span class="trade-item-percent">( ${formatWithSeparatorsFa(
+            Number(row.percent).toFixed(2)
+          )}٪)</span>
+        </div>
+      </div>
+
+      <div class="trade-item-row">
+        <div class="trade-item-label">مبلغ کل:</div>
+        <div class="trade-item-value">${formatWithSeparatorsFa(
+          +row.totalcost / 10
+        )} تومان
+        </div>
+      </div>
+      
+      <div class="trade-item-row">
+        <div class="trade-item-label">قیمت فروش : </div>
+        <div class="trade-item-value">${formatWithSeparatorsFa(+row.sellprice)}
+        </div>
+      </div>
+
+      <div class="trade-item-steplist">${stepsArr}</div>
+    </div>
       `;
     })
     .join("");
