@@ -20,10 +20,9 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            z-index: 9999;
-            width: 100%;
-            max-width: 90%;
+            z-index: 999;
             pointer-events: none;
+            max-width: 300px;
           }
           /* سبک باکس پیام */
           .toast-alert {
@@ -31,8 +30,7 @@
             padding: 14px 20px;
             border-radius: var(--radius);
             font-size: 16px;
-            max-width: 500px;
-            width: 100%;
+            width:100%;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
             color: var(--light);
             background-color: var(--primary);
@@ -41,10 +39,15 @@
             animation-delay: 0s, 4s;
             pointer-events: auto;
           }
-          /* تغییر رنگ خط نوار برای حالت خطا */
-          .toast-alert.error {
-            background-color: var(--danger);
-          }
+          
+        .toast-alert.success {
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+        }
+
+        .toast-alert.error {
+            background: linear-gradient(to right, #f85032, #e73827);
+        }
+
           @keyframes slideDown {
             from {
               opacity: 0;
@@ -89,8 +92,6 @@ function showToast(message, type = "success") {
   setTimeout(() => {
     toast.remove();
     // در صورت خالی بودن container می‌شه حذف بشه (اختیاری)
-    if (!container.hasChildNodes()) {
-      container.remove();
-    }
+    if (!container.hasChildNodes()) container.remove();
   }, 5000);
 }
