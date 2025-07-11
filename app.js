@@ -1,4 +1,21 @@
 const SHEETDB_API = "https://sheetdb.io/api/v1/4xkud7vrc6wtz";
+const months = [
+  "فروردین",
+  "اردیبهشت",
+  "خرداد",
+  "تیر",
+  "مرداد",
+  "شهریور",
+  "مهر",
+  "آبان",
+  "آذر",
+  "دی",
+  "بهمن",
+  "اسفند",
+];
+
+let allTrades = [];
+let filteredData = [];
 
 // تبدیل اعداد فارسی به انگلیسی
 function fromPersianDigits(str) {
@@ -28,6 +45,14 @@ function toPersianInput(input) {
 // کارمزد رفت و برگشت
 function calculateSpread(price) {
   return price * 0.00206;
+}
+
+function formatToJalali(dt) {
+  return new Intl.DateTimeFormat("fa-IR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(dt));
 }
 
 // سوییچ فرم‌ها
@@ -145,7 +170,7 @@ const calculateTradeResults = ({ steps, sellPriceVal }) => {
 
   const contractSize = 1000;
   const avgBuy = totalCost / totalQty;
-  const spread = calculateSpread(avgBuy);
+  const spread = calculateSpread(avgBuy) / 2;
   const profit = (sellPriceVal - avgBuy - spread) * totalQty;
   const percent = ((sellPriceVal - avgBuy - spread) / avgBuy) * 100;
   const totalSpread = spread * contractSize * totalQty;
@@ -355,7 +380,7 @@ const renderTradesData = (data) => {
         row.profit / 10
       )} تومان</span>
       <div>
-      <span> ${new Date(row.datetime).toLocaleDateString("fa-IR")} </span> 
+      <span> ${formatToJalali(row.datetime)} </span> 
       <span class="trade-item-show-btn" > +جزئیات </span>
       </div>
       </div>
@@ -364,7 +389,7 @@ const renderTradesData = (data) => {
       <div class="trade-item-row">
         <div class="trade-item-label">تاریخ:</div>
         <div class="trade-item-value">
-        ${new Date(row.datetime).toLocaleDateString("fa-IR")}
+        ${formatToJalali(row.datetime)}
         </div>
       </div>
 
@@ -408,29 +433,164 @@ const calculateTotalProfit = (data) => {
   return totalProfit;
 };
 
+const renderTradesList = (data) => {
+  const container = document.getElementById("tradesList");
+  if (data.length > 0) {
+    const totalProfit = calculateTotalProfit(data) / 10;
+    container.innerHTML = `
+    <li class="totalProfit"> مجموع سود : ${formatWithSeparatorsFa(
+      totalProfit
+    )} تومان </li>
+    ${renderTradesData(data)}  
+    `;
+    attachAccordionEvents();
+  } else {
+    container.innerHTML = `
+    <div class="no-data"> 
+    <span>
+    داده ای یافت نشد. 
+    </span>
+    </div>
+    `;
+  }
+};
+
 // نمایش معاملات ثبت‌شده
 document.getElementById("showTradesBtn").addEventListener("click", async () => {
   openModal();
   const container = document.getElementById("tradesList");
-  container.innerHTML = "در حال بارگذاری...";
+  container.innerHTML = `
+            <div class="skeleton skeleton-item"></div>
+            <div class="skeleton skeleton-item"></div>
+            <div class="skeleton skeleton-item"></div>
+            <div class="skeleton skeleton-item"></div>
+            <div class="skeleton skeleton-item"></div>
+  `;
   container.style.display = "block";
 
   const res = await fetch(SHEETDB_API);
-  const data = await res.json();
-  const trades = Array.from(data);
+  allTrades = await res.json();
 
-  if (data.length == 0) {
-    container.innerHTML = "داده ای یافت نشد.";
+  renderTradesList(allTrades);
+});
+
+const fromDate = document.getElementById("fromDate");
+const toDate = document.getElementById("toDate");
+const clearFilter = document.getElementById("clearFilter");
+
+function getCurrentJalaliYear() {
+  const now = new Date();
+  return jalaali.toJalaali(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    now.getDate()
+  );
+}
+
+function populate(id) {
+  const c = document.getElementById(id);
+  const ys = c.querySelector(".year"),
+    ms = c.querySelector(".month"),
+    ds = c.querySelector(".day");
+
+  const currentYear = getCurrentJalaliYear().jy;
+
+  for (let y = currentYear - 20; y <= currentYear; y++) {
+    const selected = y === currentYear ? "selected" : "";
+    ys.innerHTML += `<option value="${y}" ${selected}>${toPersianDigits(
+      y
+    )}</option>`;
+  }
+
+  months.forEach(
+    (m, i) => (ms.innerHTML += `<option value="${i + 1}">${m}</option>`)
+  );
+
+  ds.innerHTML = `<option value="">روز</option>`;
+
+  ds.disabled = true;
+  ms.addEventListener("change", () => {
+    const m = +ms.value;
+    const y = +ys.value;
+    const selectedDay = +ds.value;
+
+    let maxDay = 31;
+
+    if (m > 6 && m < 12) {
+      maxDay = 30;
+    } else if (m === 12) {
+      const isKabise = [1, 5, 9, 13, 17, 22, 26, 30].includes(y % 33);
+      maxDay = isKabise ? 30 : 29;
+    }
+
+    // اگر روز انتخاب‌شده از حداکثر مجاز ماه بیشتر بود، اصلاحش کن
+    if (selectedDay > maxDay) {
+      ds.value = maxDay.toString();
+      selectedDay = maxDay;
+    }
+
+    ds.innerHTML = `<option value="">روز</option>`;
+    if (m > 0) {
+      ds.disabled = false;
+      for (let d = 1; d <= maxDay; d++) {
+        ds.innerHTML += `<option value="${d}" ${
+          d === selectedDay ? "selected" : ""
+        }>${toPersianDigits(d)}</option>`;
+      }
+    } else {
+      ds.disabled = true;
+    }
+  });
+}
+
+populate("fromDate");
+populate("toDate");
+
+function jalaliToGregorianDate(jy, jm, jd) {
+  const g = jalaali.toGregorian(jy, jm, jd);
+  return new Date(g.gy, g.gm - 1, g.gd);
+}
+
+function getInput(id) {
+  const c = document.getElementById(id);
+  const y = +c.querySelector(".year").value;
+  const m = +c.querySelector(".month").value;
+  const d = +c.querySelector(".day").value;
+  return y && m && d ? jalaliToGregorianDate(y, m, d) : null;
+}
+
+function applyOrReset() {
+  const from = getInput("fromDate"),
+    to = getInput("toDate");
+
+  if (!from || !to) {
+    showToast("لطفاً تمام فیلدهای تاریخ را انتخاب کنید.", "error");
+    filteredData = [...allTrades];
+    clearFilter.style.display = "none";
+    renderTradesList(filteredData);
     return;
   }
 
-  const totalProfit = calculateTotalProfit(trades) / 10;
+  if (from > to) {
+    showToast("تاریخ شروع نمی‌تواند بزرگ‌تر از تاریخ پایان باشد.", "error");
+    return;
+  }
 
-  container.innerHTML = `
-  <li class="totalProfit"> مجموع سود : ${formatWithSeparatorsFa(
-    totalProfit
-  )} تومان </li>
-  ${renderTradesData(trades)}  
-  `;
-  attachAccordionEvents();
+  filteredData = allTrades.filter((i) => {
+    const d = new Date(i.datetime);
+    const dOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate()); // حذف ساعت
+    return dOnly >= from && dOnly <= to;
+  });
+
+  clearFilter.style.display = "inline-block";
+  renderTradesList(filteredData);
+}
+
+document.getElementById("filterButton").addEventListener("click", applyOrReset);
+clearFilter.addEventListener("click", () => {
+  populate("fromDate");
+  populate("toDate");
+  filteredData = [...allTrades];
+  clearFilter.style.display = "none";
+  renderTradesList(filteredData);
 });

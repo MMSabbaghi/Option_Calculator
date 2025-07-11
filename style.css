@@ -324,11 +324,118 @@ button:hover {
   position: relative;
   background: white;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   max-height: 80vh;
   overflow-y: auto;
   width: 90%;
   max-width: 500px;
+  min-height: 250px;
+}
+
+.no-data {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-data span {
+  display: block;
+  text-align: center;
+  color: #666;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+  margin: 5px 0;
+  padding: 5px 15px;
+  position: relative;
+  border: var(--border) 1px solid;
+  border-radius: var(--radius);
+}
+
+.date-group {
+  display: flex;
+  gap: 1px;
+}
+
+.date-group select {
+  appearance: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  background: #fff;
+  font-size: 0.8rem;
+  max-width: 50px;
+}
+
+.filter-label {
+  color: #333;
+  font-size: 0.8rem;
+}
+
+.filter-btn {
+  position: relative;
+}
+
+.filter-btn button {
+  cursor: pointer;
+  position: relative;
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.clear-filter {
+  position: absolute;
+  left: -5px;
+  top: -5px;
+  background: var(--danger);
+  color: white;
+  font-size: 12px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  display: none;
+}
+
+.clear-filter:hover {
+  background: #c82333;
+}
+
+.skeleton {
+  animation: skeleton-loading 1s linear infinite alternate;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-color: hsl(200, 20%, 80%);
+  }
+  100% {
+    background-color: hsl(200, 20%, 95%);
+  }
+}
+
+.skeleton-item {
+  width: 100%;
+  height: 45px;
+  margin-bottom: 0.5rem;
+  border-radius: var(--radius);
+  margin: auto;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
 }
 
 .action-btns {
@@ -375,5 +482,18 @@ button:hover {
   input,
   button {
     font-size: 0.9rem;
+  }
+
+  .controls {
+    gap: 0.2rem;
+    display: grid;
+  }
+
+  .date-group select {
+    max-width: initial;
+  }
+
+  .filter-btn button {
+    padding: 8px;
   }
 }

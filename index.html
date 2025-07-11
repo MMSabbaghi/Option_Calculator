@@ -63,11 +63,50 @@
           <span class="close" onclick="closeModal()">&times;</span>
           <h3 style="margin: 0; padding: 0;">لیست معاملات</h3>
         </div>
-        <ul id="tradesList" style="padding: 0;">
+        <div class="controls">
+          <div class="filter-row">
+            <span class="filter-label" >
+              شروع:
+            </span>
+            <div class="date-group" id="fromDate">
+              <select class="year">
+                <option value="">سال</option>
+              </select>
+              <select class="month">
+                <option value="">ماه</option>
+              </select>
+              <select class="day">
+                <option value="">روز</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-row">
+          <span class="filter-label" >
+              پایان:
+          </span>
+            <div class="date-group" id="toDate">
+              <select class="year">
+                <option value="">سال</option>
+              </select>
+              <select class="month">
+                <option value="">ماه</option>
+              </select>
+              <select class="day">
+                <option value="">روز</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-btn" style="position: relative">
+            <button id="filterButton">اعمال فیلتر</button>
+            <div class="clear-filter" id="clearFilter">×</div>
+          </div>
+        </div>
+        <ul id="tradesList" style="padding: 0; margin: 0;">
         </ul>
       </div>
     </div>
-    <script src="./alert.js"></script>
+    <script src="./utils/alert.js"></script>
+    <script src="./utils/jalaali.min.js"></script>
     <script src="./app.js"></script>
 </body>
 
