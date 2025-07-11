@@ -299,6 +299,40 @@ function closeModal() {
   document.getElementById("modal").style.display = "none";
 }
 
+function renderAccordion(trade) {
+  const steps = JSON.parse(trade.steps || "[]")
+    .map(
+      (s) =>
+        `<div>قیمت: ${formatWithSeparatorsFa(
+          s.price
+        )} | تعداد: ${formatWithSeparatorsFa(s.qty)}</div>`
+    )
+    .join("");
+  return `
+    <li class="accordion">
+        <div class="accordion-header">${toJalaaliDateStr(
+          trade.datetime
+        )} - سود: ${formatWithSeparatorsFa(trade.profit / 10)} تومان</div>
+        <div class="accordion-body">
+            <div>مبلغ کل: ${formatWithSeparatorsFa(
+              trade.totalcost / 10
+            )} تومان</div>
+            <div>قیمت فروش: ${formatWithSeparatorsFa(trade.sellprice)}</div>
+            <div>${steps}</div>
+        </div>
+    </li>`;
+}
+
+function attachAccordionEvents() {
+  document.querySelectorAll(".accordion-header").forEach((header) => {
+    header.addEventListener("click", () => {
+      const body = header.nextElementSibling;
+      const isOpen = body.classList.toggle("open");
+      body.style.maxHeight = isOpen ? body.scrollHeight + "px" : null;
+    });
+  });
+}
+
 const renderTradesData = (data) => {
   return data
     .reverse()
@@ -315,13 +349,22 @@ const renderTradesData = (data) => {
         .join("");
 
       return `
-          <div class="trade-item">
+      <li class="accordion">
+      <div class="accordion-header">
+      <span class="trade-item-profit"> ${formatWithSeparatorsFa(
+        row.profit / 10
+      )} تومان</span>
+      <div>
+      <span> ${new Date(row.datetime).toLocaleDateString("fa-IR")} </span> 
+      <span class="trade-item-show-btn" > +جزئیات </span>
+      </div>
+      </div>
 
+        <div class="accordion-body">
       <div class="trade-item-row">
         <div class="trade-item-label">تاریخ:</div>
-        <div class="trade-item-value">${new Date(
-          row.datetime
-        ).toLocaleDateString("fa-IR")}
+        <div class="trade-item-value">
+        ${new Date(row.datetime).toLocaleDateString("fa-IR")}
         </div>
       </div>
 
@@ -352,7 +395,8 @@ const renderTradesData = (data) => {
       </div>
 
       <div class="trade-item-steplist">${stepsArr}</div>
-    </div>
+      </div>
+    </li>
       `;
     })
     .join("");
@@ -375,7 +419,7 @@ document.getElementById("showTradesBtn").addEventListener("click", async () => {
   const data = await res.json();
   const trades = Array.from(data);
 
-  if ((data.length = 0)) {
+  if (data.length == 0) {
     container.innerHTML = "داده ای یافت نشد.";
     return;
   }
@@ -388,4 +432,5 @@ document.getElementById("showTradesBtn").addEventListener("click", async () => {
   )} تومان </li>
   ${renderTradesData(trades)}  
   `;
+  attachAccordionEvents();
 });
