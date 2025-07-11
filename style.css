@@ -306,6 +306,18 @@ button:hover {
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: opacity 500ms ease-out;
+  opacity: 0;
+  transform: scale(0);
+}
+
+.modal.active {
+  opacity: 1;
+  transform: scale(1);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
 
 .modal-content {

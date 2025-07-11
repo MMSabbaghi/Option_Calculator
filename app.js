@@ -292,11 +292,11 @@ document.getElementById("profitBtn").addEventListener("click", () => {
 });
 
 function openModal() {
-  document.getElementById("modal").style.display = "flex";
+  document.getElementById("modal").classList.add("active");
 }
 
 function closeModal() {
-  document.getElementById("modal").style.display = "none";
+  document.getElementById("modal").classList.remove("active");
 }
 
 function renderAccordion(trade) {
