@@ -158,29 +158,46 @@ async function saveTradeToSheet(trade) {
   }
 }
 
-const calculateTradeResults = ({ steps, sellPriceVal }) => {
-  if (!sellPriceVal || steps.length === 0) return;
-  let totalCost = 0,
-    totalQty = 0;
+function calculateTradeResults({ steps, sellPriceVal, fee = 0.00102 }) {
+  let totalCost = 0;
+  let totalQty = 0;
 
-  steps.forEach(({ price, qty }) => {
-    totalCost += price * qty;
-    totalQty += qty;
+  steps.forEach((item) => {
+    totalCost += item.price * (1 + fee) * item.qty; // هزینه خرید با کارمزد
+    totalQty += item.qty;
   });
 
+  if (totalQty === 0)
+    return { breakEven: 0, profit: 0, totalCost: 0, percent: 0 };
+
   const contractSize = 1000;
-  const avgBuy = totalCost / totalQty;
-  const spread = calculateSpread(avgBuy) / 2;
-  const profit = (sellPriceVal - avgBuy - spread) * totalQty;
-  const percent = ((sellPriceVal - avgBuy - spread) / avgBuy) * 100;
-  const totalSpread = spread * contractSize * totalQty;
+
+  // میانگین خرید با کارمزد
+  const avgBuyWithFee = totalCost / totalQty;
+
+  // قیمت سر به سر (باید به این قیمت بفروشیم تا سود صفر بشه)
+  const breakEven = avgBuyWithFee / (1 - fee);
+
+  // قیمت فروش واقعی (با احتساب کسر کارمزد فروش)
+  const netSellPrice = sellPriceVal * (1 - fee);
+
+  // سود هر واحد
+  const unitProfit = netSellPrice - avgBuyWithFee;
+
+  // محاسبه سود و درصد سود
+  const profit = unitProfit * totalQty * contractSize;
+  const percent = (unitProfit / avgBuyWithFee) * 100;
+
+  // کل هزینه نهایی
+  const totalCostFinal = totalCost * contractSize;
 
   return {
-    profit: profit * contractSize,
-    totalCost: totalCost * contractSize + totalSpread,
+    breakEven,
+    profit,
+    totalCost: totalCostFinal,
     percent,
   };
-};
+}
 
 const isValidNumber = (num) => {
   return typeof num === "number" && num > 0;
@@ -294,7 +311,7 @@ document.getElementById("profitBtn").addEventListener("click", () => {
 
   if (isValid) {
     const rBox = document.getElementById("profitResult");
-    const { profit, percent, totalCost } = calculateTradeResults({
+    const { profit, percent, totalCost, breakEven } = calculateTradeResults({
       sellPriceVal,
       steps,
     });
@@ -309,7 +326,12 @@ document.getElementById("profitBtn").addEventListener("click", () => {
   ${createResultRow({
     lbl: "درصد سود",
     val: `${formatWithSeparatorsFa(+percent.toFixed(2))}٪`,
-  })}`;
+  })}
+    ${createResultRow({
+      lbl: "قیمت سر به سر",
+      val: `${formatWithSeparatorsFa(+breakEven)} ریال`,
+    })}
+  `;
     rBox.style.display = "block";
   } else {
     showToast(msg, "error");
