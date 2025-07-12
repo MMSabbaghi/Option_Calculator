@@ -271,36 +271,33 @@ const emptyForm = () => {
 };
 
 document.getElementById("saveTradeBtn").addEventListener("click", async (e) => {
-  const isConfirm = confirm("آیا مطممئن هستید؟");
-  if (isConfirm) {
-    const { sellPriceVal, steps } = getTradeFormData();
-    const { isValid, msg } = isValidTrade({ sellPriceVal, steps });
+  const { sellPriceVal, steps } = getTradeFormData();
+  const { isValid, msg } = isValidTrade({ sellPriceVal, steps });
 
-    if (isValid) {
-      const { profit, percent, totalCost } = calculateTradeResults({
-        sellPriceVal,
-        steps,
-      });
+  if (isValid && confirm("آیا مطمئن هستید؟")) {
+    const { profit, percent, totalCost } = calculateTradeResults({
+      sellPriceVal,
+      steps,
+    });
 
-      const trade = {
-        id: Date.now().toString(),
-        datetime: new Date(),
-        profit,
-        percent,
-        totalcost: totalCost,
-        sellprice: sellPriceVal,
-        steps: JSON.stringify(steps),
-      };
+    const trade = {
+      id: Date.now().toString(),
+      datetime: new Date(),
+      profit,
+      percent,
+      totalcost: totalCost,
+      sellprice: sellPriceVal,
+      steps: JSON.stringify(steps),
+    };
 
-      e.target.disabled = true;
-      e.target.innerHTML = `<span class="loader"></span>`;
-      const { isSucsess } = await saveTradeToSheet(trade);
-      if (isSucsess) emptyForm();
-      e.target.disabled = false;
-      e.target.innerHTML = "ذخیره معامله";
-    } else {
-      showToast(msg, "error");
-    }
+    e.target.disabled = true;
+    e.target.innerHTML = `<span class="loader"></span>`;
+    const { isSucsess } = await saveTradeToSheet(trade);
+    if (isSucsess) emptyForm();
+    e.target.disabled = false;
+    e.target.innerHTML = "ذخیره معامله";
+  } else if (!isValid) {
+    showToast(msg, "error");
   }
 });
 
