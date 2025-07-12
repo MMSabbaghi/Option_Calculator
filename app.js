@@ -369,7 +369,7 @@ const renderTradesData = (data) => {
                 <span>قیمت: ${formatWithSeparatorsFa(s.price)}</span>
                 <span>تعداد: ${formatWithSeparatorsFa(s.qty)}</span>
             </div>
-        </div>`
+        `
         )
         .join("");
 
@@ -530,7 +530,7 @@ function populate(id) {
     }
 
     ds.innerHTML = `<option value="">روز</option>`;
-    if (m > 0) {
+    if (m > 0 && y > 0) {
       ds.disabled = false;
       for (let d = 1; d <= maxDay; d++) {
         ds.innerHTML += `<option value="${d}" ${

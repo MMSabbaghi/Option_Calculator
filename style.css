@@ -496,4 +496,7 @@ button:hover {
   .filter-btn button {
     padding: 8px;
   }
+  .filter-row {
+    justify-content: space-between;
+  }
 }
