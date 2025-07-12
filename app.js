@@ -449,20 +449,28 @@ const renderTradesData = (data) => {
     .join("");
 };
 
-const calculateTotalProfit = (data) => {
+const renderTotalProfit = (data) => {
   let totalProfit = 0;
   data.forEach((trade) => (totalProfit += +trade.profit));
-  return totalProfit;
+
+  const statusClass =
+    totalProfit > 0 ? "total-pos" : totalProfit != 0 ? "total-neg" : "";
+
+  return `
+    <li class="total-profit">
+    <span>مجموع سود :</span>
+    <span class="${statusClass}"> 
+    ${formatWithSeparatorsFa(totalProfit / 10)} تومان 
+    </span>
+      </li>
+`;
 };
 
 const renderTradesList = (data) => {
   const container = document.getElementById("tradesList");
   if (data.length > 0) {
-    const totalProfit = calculateTotalProfit(data) / 10;
     container.innerHTML = `
-    <li class="totalProfit"> مجموع سود : ${formatWithSeparatorsFa(
-      totalProfit
-    )} تومان </li>
+    ${renderTotalProfit(data)}
     ${renderTradesData(data)}  
     `;
     attachAccordionEvents();
@@ -552,7 +560,7 @@ function populate(id) {
     }
 
     ds.innerHTML = `<option value="">روز</option>`;
-    if (m > 0 && y > 0) {
+    if (m > 0) {
       ds.disabled = false;
       for (let d = 1; d <= maxDay; d++) {
         ds.innerHTML += `<option value="${d}" ${
