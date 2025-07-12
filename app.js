@@ -55,6 +55,16 @@ function formatToJalali(dt) {
   }).format(new Date(dt));
 }
 
+function formatToToman(amountInRial) {
+  const amountInToman = Math.floor(amountInRial / 10);
+  return (
+    new Intl.NumberFormat("fa-IR", {
+      useGrouping: true,
+      maximumFractionDigits: 0,
+    }).format(amountInToman) + " تومان"
+  );
+}
+
 // سوییچ فرم‌ها
 document
   .getElementById("btnCalc")
@@ -314,11 +324,11 @@ document.getElementById("profitBtn").addEventListener("click", () => {
     });
     rBox.innerHTML = `${createResultRow({
       lbl: "مبلغ کل",
-      val: `${formatWithSeparatorsFa(+totalCost / 10)} تومان`,
+      val: formatToToman(totalCost),
     })}
   ${createResultRow({
     lbl: "سود خالص",
-    val: `${formatWithSeparatorsFa(+profit / 10)} تومان`,
+    val: formatToToman(profit),
   })}
   ${createResultRow({
     lbl: "درصد سود",
@@ -356,11 +366,9 @@ function renderAccordion(trade) {
     <li class="accordion">
         <div class="accordion-header">${toJalaaliDateStr(
           trade.datetime
-        )} - سود: ${formatWithSeparatorsFa(trade.profit / 10)} تومان</div>
+        )} - سود: ${formatToToman(trade.profit)}</div>
         <div class="accordion-body">
-            <div>مبلغ کل: ${formatWithSeparatorsFa(
-              trade.totalcost / 10
-            )} تومان</div>
+            <div>مبلغ کل: ${formatToToman(trade.totalcost)}</div>
             <div>قیمت فروش: ${formatWithSeparatorsFa(trade.sellprice)}</div>
             <div>${steps}</div>
         </div>
@@ -395,9 +403,7 @@ const renderTradesData = (data) => {
       return `
       <li class="accordion">
       <div class="accordion-header">
-      <span class="trade-item-profit"> ${formatWithSeparatorsFa(
-        row.profit / 10
-      )} تومان</span>
+      <span class="trade-item-profit">  ${formatToToman(row.profit)}</span>
       <div>
       <span> ${formatToJalali(row.datetime)} </span> 
       <span class="trade-item-show-btn" > +جزئیات </span>
@@ -415,9 +421,7 @@ const renderTradesData = (data) => {
       <div class="trade-item-row">
         <div class="trade-item-label">سود خالص:</div>
         <div class="trade-item-value">
-          <span class="trade-item-profit">${formatWithSeparatorsFa(
-            +row.profit / 10
-          )} تومان</span>
+          <span class="trade-item-profit">${formatToToman(row.profit)} </span>
           <span class="trade-item-percent">( ${formatWithSeparatorsFa(
             Number(row.percent).toFixed(2)
           )}٪)</span>
@@ -426,9 +430,7 @@ const renderTradesData = (data) => {
 
       <div class="trade-item-row">
         <div class="trade-item-label">مبلغ کل:</div>
-        <div class="trade-item-value">${formatWithSeparatorsFa(
-          +row.totalcost / 10
-        )} تومان
+        <div class="trade-item-value">${formatToToman(row.totalcost)} 
         </div>
       </div>
       
@@ -457,7 +459,7 @@ const renderTotalProfit = (data) => {
     <li class="total-profit">
     <span>مجموع سود :</span>
     <span class="${statusClass}"> 
-    ${formatWithSeparatorsFa(totalProfit / 10)} تومان 
+    ${formatToToman(totalProfit)} 
     </span>
       </li>
 `;
