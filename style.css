@@ -272,7 +272,7 @@ button:hover {
   margin-right: 4px;
 }
 
-.total-profit {
+#totalProfit {
   background-color: var(--light);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -334,11 +334,24 @@ button:hover {
   background: white;
   padding: 20px;
   border-radius: var(--radius);
+  overflow-y: hidden;
   max-height: 80vh;
-  overflow-y: auto;
   width: 90%;
   max-width: 500px;
   min-height: 250px;
+}
+
+.modal-header {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.trades-list {
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .no-data {
@@ -359,8 +372,9 @@ button:hover {
   flex-wrap: nowrap;
   gap: 0.8rem;
   align-items: center;
+  justify-content: space-between;
   margin: 5px 0;
-  padding: 5px 15px;
+  padding: 5px;
   position: relative;
   border: var(--border) 1px solid;
   border-radius: var(--radius);
@@ -370,7 +384,7 @@ button:hover {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.55rem;
+  gap: 0.8rem;
 }
 
 .date-group {
@@ -503,6 +517,7 @@ button:hover {
   .controls {
     gap: 0.2rem;
     display: grid;
+    justify-content: initial;
   }
 
   .filter-btn button {
@@ -522,6 +537,7 @@ button:hover {
 
   .controls-rows {
     margin-bottom: 3px;
+    gap: 0.6rem;
   }
 
   .date-group select {

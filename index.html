@@ -59,12 +59,13 @@
     </div>
     <div id="modal" class="modal">
       <div class="modal-content">
-        <div style="display: flex; flex-direction: row-reverse; justify-content: space-between;">
+        <div class="modal-header">
           <span class="close" onclick="closeModal()">&times;</span>
           <h3 style="margin: 0; padding: 0;">لیست معاملات</h3>
         </div>
-        <div class="controls">
-          <div class="controls-rows" >
+        <div class="modal-body">
+          <div class="controls">
+            <div class="controls-rows" >
             <div class="filter-row">
               <span class="filter-label" >
                 شروع:
@@ -97,14 +98,18 @@
               </select>
             </div>
           </div>
-          </div>
-          <div class="filter-btn" style="position: relative">
-            <button id="filterButton">اعمال فیلتر</button>
-            <div class="clear-filter" id="clearFilter">×</div>
-          </div>
         </div>
+        <div class="filter-btn" style="position: relative">
+          <button id="filterButton">اعمال فیلتر</button>
+          <div class="clear-filter" id="clearFilter">×</div>
+        </div>
+      </div>
+      <div id="totalProfit"></div>
+      <div class="trades-list">
         <ul id="tradesList" style="padding: 0; margin: 0;">
-        </ul>
+      </div>
+      </ul>
+    </div>
       </div>
     </div>
     <script src="./utils/alert.js"></script>

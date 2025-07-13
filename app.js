@@ -451,27 +451,25 @@ const renderTradesData = (data) => {
 const renderTotalProfit = (data) => {
   let totalProfit = 0;
   data.forEach((trade) => (totalProfit += +trade.profit));
+  const totalProfitEl = document.getElementById("totalProfit");
 
   const statusClass =
     totalProfit > 0 ? "total-pos" : totalProfit != 0 ? "total-neg" : "";
 
-  return `
-    <li class="total-profit">
+  totalProfitEl.innerHTML = `
     <span>مجموع سود :</span>
     <span class="${statusClass}"> 
     ${formatToToman(totalProfit)} 
     </span>
-      </li>
 `;
 };
 
 const renderTradesList = (data) => {
   const container = document.getElementById("tradesList");
   if (data.length > 0) {
-    container.innerHTML = `
-    ${renderTotalProfit(data)}
-    ${renderTradesData(data)}  
-    `;
+    container.innerHTML = renderTradesData(data);
+
+    renderTotalProfit(data);
     attachAccordionEvents();
   } else {
     container.innerHTML = `
