@@ -48,12 +48,31 @@ body {
   max-width: 95%;
 }
 
-.container h1 {
-  text-align: center;
-  color: #333;
-  font-size: 1.4rem;
+.logo {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   border-bottom: 1px solid var(--primary);
   padding-bottom: 8px;
+  margin-bottom: 5px;
+}
+
+.logo img {
+  max-width: 140px;
+  margin-bottom: 5px;
+}
+
+.logo h1 {
+  text-align: center;
+  opacity: 0.8;
+  color: #333;
+  font-size: 1rem;
+  font-weight: normal;
+  margin: 0;
+  border-right: 2px solid var(--primary-dark);
+  padding-right: 5px;
 }
 
 label {
