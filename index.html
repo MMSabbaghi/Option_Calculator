@@ -43,16 +43,22 @@
           </div>
         </div>
         <button class="add-step" onclick="addStep()">
-          +
+          <i class="bi bi-plus-lg"></i>
         </button>
         <label> قیمت فروش(ریال):</label>
         <input id="sellPrice" type="text" placeholder="قیمت فروش">
         <div class="action-btns">
-          <button id="profitBtn">محاسبه سود</button>
+          <button id="profitBtn">
+            <i class="bi bi-calculator-fill"></i>
+            محاسبه سود</button>
           <button id="saveTradeBtn">
-            ذخیره معامله
+            <i class="bi bi-floppy-fill"></i>
+            <span> ذخیره</span>
           </button>
-          <button id="showTradesBtn">نمایش معاملات </button>
+          <button id="showTradesBtn">
+            <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+           معاملات
+          </button>
         </div>
         <div id="profitResult" class="result" style="display:none;"></div>
 

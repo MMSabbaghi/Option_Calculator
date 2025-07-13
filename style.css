@@ -22,6 +22,11 @@
   --font: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+[class^="bi-"],
+[class*=" bi-"] {
+  vertical-align: middle;
+}
+
 body {
   font-family: var(--font);
   background: linear-gradient(to right, #f0f4f8, #e6ecf1);
@@ -80,7 +85,6 @@ button {
   background-color: var(--primary);
   color: white;
   border: none;
-  font-weight: bold;
   cursor: pointer;
 }
 
