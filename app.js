@@ -457,11 +457,11 @@ const renderTotalProfit = (data) => {
     totalProfit > 0 ? "total-pos" : totalProfit != 0 ? "total-neg" : "";
 
   totalProfitEl.innerHTML = `
-    <span>مجموع سود :</span>
-    <span class="${statusClass}"> 
-    ${formatToToman(totalProfit)} 
-    </span>
-`;
+      <span>مجموع سود :</span>
+      <span class="${statusClass}">
+      ${formatToToman(totalProfit)}
+      </span>
+  `;
 };
 
 const renderTradesList = (data) => {

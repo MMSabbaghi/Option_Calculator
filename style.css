@@ -462,7 +462,6 @@ button:hover {
   height: 45px;
   margin-bottom: 0.5rem;
   border-radius: var(--radius);
-  margin: auto;
   margin-top: 5px;
   display: flex;
   align-items: center;
