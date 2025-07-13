@@ -415,6 +415,7 @@ button:hover {
   cursor: pointer;
   position: relative;
   margin: 0;
+  padding: 6px 12px;
   font-size: 0.8rem;
 }
 
@@ -512,22 +513,11 @@ button:hover {
   button {
     font-size: 0.9rem;
   }
-
   .controls {
-    gap: 0.2rem;
     display: grid;
     justify-content: initial;
+    gap: 0.4rem;
   }
-
-  .filter-btn button {
-    padding: 8px;
-  }
-  .filter-row {
-    justify-content: space-between;
-  }
-}
-
-@media (max-width: 450px) {
   .filter-row {
     justify-content: space-between;
     width: 100%;
