@@ -87,7 +87,7 @@ function toggle(formId, btnId) {
 }
 
 // جلوگیری از وارد کردن غیر عدد
-document.querySelectorAll("input[type='text']").forEach((input) => {
+document.querySelectorAll(".container input[type='text']").forEach((input) => {
   input.addEventListener("input", () => toPersianInput(input));
 });
 
@@ -280,33 +280,44 @@ const emptyForm = () => {
   `;
 };
 
-document.getElementById("saveTradeBtn").addEventListener("click", async (e) => {
+document.getElementById("saveTradeBtn").addEventListener("click", (e) => {
   const { sellPriceVal, steps } = getTradeFormData();
   const { isValid, msg } = isValidTrade({ sellPriceVal, steps });
 
-  if (isValid && confirm("آیا مطمئن هستید؟")) {
-    const { profit, percent, totalCost } = calculateTradeResults({
-      sellPriceVal,
-      steps,
+  if (isValid) {
+    showConfirm(async (instrument) => {
+      console.log(instrument);
+
+      if (instrument.length >= 2) {
+        const { profit, percent, totalCost } = calculateTradeResults({
+          sellPriceVal,
+          steps,
+        });
+
+        const trade = {
+          id: Date.now().toString(),
+          datetime: new Date(),
+          profit,
+          percent,
+          totalcost: totalCost,
+          sellprice: sellPriceVal,
+          steps: JSON.stringify(steps),
+          instrument,
+        };
+
+        alert(trade);
+
+        e.target.disabled = true;
+        e.target.innerHTML = `<span class="loader"></span>`;
+        const { isSucsess } = await saveTradeToSheet(trade);
+        if (isSucsess) emptyForm();
+        e.target.disabled = false;
+        e.target.innerHTML = "ذخیره معامله";
+      } else {
+        showToast(" نام وارد شده باید حداقل شامل دو حرف باشد. ", "error");
+      }
     });
-
-    const trade = {
-      id: Date.now().toString(),
-      datetime: new Date(),
-      profit,
-      percent,
-      totalcost: totalCost,
-      sellprice: sellPriceVal,
-      steps: JSON.stringify(steps),
-    };
-
-    e.target.disabled = true;
-    e.target.innerHTML = `<span class="loader"></span>`;
-    const { isSucsess } = await saveTradeToSheet(trade);
-    if (isSucsess) emptyForm();
-    e.target.disabled = false;
-    e.target.innerHTML = "ذخیره معامله";
-  } else if (!isValid) {
+  } else {
     showToast(msg, "error");
   }
 });
@@ -403,10 +414,11 @@ const renderTradesData = (data) => {
       return `
       <li class="accordion">
       <div class="accordion-header">
-      <span class="trade-item-profit">  ${formatToToman(row.profit)}</span>
-      <div>
       <span> ${formatToJalali(row.datetime)} </span> 
-      <span class="trade-item-show-btn" > +جزئیات </span>
+      <span> ${row.instrument} </span> 
+      <div>
+      <span class="trade-item-profit">  ${formatToToman(row.profit)}</span>
+      <span class="trade-item-show-btn" > <i class="bi bi-three-dots-vertical"></i> </span>
       </div>
       </div>
 

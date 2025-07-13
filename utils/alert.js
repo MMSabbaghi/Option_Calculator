@@ -8,7 +8,6 @@
             --danger: #e74c3c;
             --light: #f9f9f9;
             --border: #ddd;
-            --radius: 12px;
           }
           /* Container توست در وسط بالا */
           .toast-alert-container {
