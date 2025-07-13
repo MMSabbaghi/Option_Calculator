@@ -22,9 +22,10 @@
   --font: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-[class^="bi-"],
-[class*=" bi-"] {
-  vertical-align: middle;
+.bi {
+  display: inline-block;
+  position: relative;
+  bottom: -0.125em;
 }
 
 body {
