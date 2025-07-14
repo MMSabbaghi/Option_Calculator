@@ -142,7 +142,7 @@ function addStep() {
   const div = document.createElement("div");
   div.className = "step";
   div.innerHTML = `
-    <button class="remove-step" onclick="removeStep(this)">&times;</button>
+    <button class="remove-step" onclick="removeStep(this)"><i class="bi bi-x"></i></button>
     <div><label>قیمت خرید(ریال):</label><input class="buyPrice" type="text" placeholder="قیمت خرید" oninput="toPersianInput(this)"></div>
     <div><label>تعداد قرارداد:</label><input class="buyQty" type="text"  placeholder="تعداد قراردادها" oninput="toPersianInput(this)"></div>
   `;
@@ -396,6 +396,10 @@ function attachAccordionEvents() {
   });
 }
 
+const getStatusClass = (val) => {
+  return +val > 0 ? "val-pos" : +val != 0 ? "val-neg" : "";
+};
+
 const renderTradesData = (data) => {
   return data
     .reverse()
@@ -404,12 +408,14 @@ const renderTradesData = (data) => {
         .map(
           (s) =>
             `<div class="trade-item-step">
-                <span>قیمت: ${formatWithSeparatorsFa(s.price)}</span>
-                <span>تعداد: ${formatWithSeparatorsFa(s.qty)}</span>
+      <span>قیمت: ${formatWithSeparatorsFa(s.price)}</span>
+      <span>تعداد: ${formatWithSeparatorsFa(s.qty)}</span>
             </div>
-        `
+            `
         )
         .join("");
+
+      const statusCalss = getStatusClass(row.profit);
 
       return `
       <li class="accordion">
@@ -417,44 +423,52 @@ const renderTradesData = (data) => {
       <span> ${formatToJalali(row.datetime)} </span> 
       <span> ${row.instrument} </span> 
       <div>
-      <span class="trade-item-profit">  ${formatToToman(row.profit)}</span>
+      <span class="trade-item-profit ${statusCalss}">  ${formatToToman(
+        row.profit
+      )}</span>
       <span class="trade-item-show-btn" > <i class="bi bi-three-dots-vertical"></i> </span>
       </div>
       </div>
-
-        <div class="accordion-body">
-      <div class="trade-item-row">
-        <div class="trade-item-label">تاریخ:</div>
-        <div class="trade-item-value">
-        ${formatToJalali(row.datetime)}
-        </div>
-      </div>
+      
+      <div class="accordion-body">
 
       <div class="trade-item-row">
-        <div class="trade-item-label">سود خالص:</div>
-        <div class="trade-item-value">
-          <span class="trade-item-profit">${formatToToman(row.profit)} </span>
-          <span class="trade-item-percent">( ${formatWithSeparatorsFa(
-            Number(row.percent).toFixed(2)
-          )}٪)</span>
-        </div>
-      </div>
-
-      <div class="trade-item-row">
-        <div class="trade-item-label">مبلغ کل:</div>
-        <div class="trade-item-value">${formatToToman(row.totalcost)} 
-        </div>
+        <div class="trade-item-label">نماد:</div>
+        <div class="trade-item-value">${row.instrument}</div>
       </div>
       
       <div class="trade-item-row">
+        <div class="trade-item-label">تاریخ:</div>
+        <div class="trade-item-value">${formatToJalali(row.datetime)}</div>
+      </div>
+        
+      <div class="trade-item-row">
+        <div class="trade-item-label">سود خالص:</div>
+        <div class="trade-item-value">
+        <span class="trade-item-profit ${statusCalss}">${formatToToman(
+        row.profit
+      )} </span>
+        <span class="trade-item-percent ${statusCalss}">( ${formatWithSeparatorsFa(
+        Number(row.percent).toFixed(2)
+      )}٪)</span>
+        </div>
+        </div>
+
+        <div class="trade-item-row">
+        <div class="trade-item-label">مبلغ کل:</div>
+        <div class="trade-item-value">${formatToToman(row.totalcost)} 
+        </div>
+        </div>
+        
+        <div class="trade-item-row">
         <div class="trade-item-label">قیمت فروش : </div>
         <div class="trade-item-value">${formatWithSeparatorsFa(+row.sellprice)}
         </div>
-      </div>
-
-      <div class="trade-item-steplist">${stepsArr}</div>
-      </div>
-    </li>
+        </div>
+        
+        <div class="trade-item-steplist">${stepsArr}</div>
+        </div>
+        </li>
       `;
     })
     .join("");
@@ -463,25 +477,22 @@ const renderTradesData = (data) => {
 const renderTotalProfit = (data) => {
   let totalProfit = 0;
   data.forEach((trade) => (totalProfit += +trade.profit));
-  const totalProfitEl = document.getElementById("totalProfit");
 
-  const statusClass =
-    totalProfit > 0 ? "total-pos" : totalProfit != 0 ? "total-neg" : "";
-
-  totalProfitEl.innerHTML = `
-      <span>مجموع سود :</span>
-      <span class="${statusClass}">
-      ${formatToToman(totalProfit)}
-      </span>
+  return `
+  <span>مجموع سود :</span>
+  <span class="${getStatusClass(totalProfit)}">
+  ${formatToToman(totalProfit)}
+  </span>
   `;
 };
 
 const renderTradesList = (data) => {
   const container = document.getElementById("tradesList");
+  const totalProfitEl = document.getElementById("totalProfit");
+  totalProfitEl.innerHTML = renderTotalProfit(data);
+
   if (data.length > 0) {
     container.innerHTML = renderTradesData(data);
-
-    renderTotalProfit(data);
     attachAccordionEvents();
   } else {
     container.innerHTML = `
@@ -509,6 +520,7 @@ document.getElementById("showTradesBtn").addEventListener("click", async () => {
 
   const res = await fetch(SHEETDB_API);
   allTrades = await res.json();
+  // allTrades = [...RAW_DATA];
 
   renderTradesList(allTrades);
 });
