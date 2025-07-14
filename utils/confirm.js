@@ -121,6 +121,15 @@
   const cancel = overlay.querySelector(".confirm-btn-cancel");
   const confirm = overlay.querySelector(".confirm-btn-confirm");
 
+  // تبدیل اعداد انگلیسی به فارسی
+  function toPersianDigits(str) {
+    return (str + "").replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
+  }
+
+  input.addEventListener("input", (e) => {
+    input.value = toPersianDigits(e.target.value);
+  });
+
   let onConfirm = null;
 
   function showConfirm(callback) {

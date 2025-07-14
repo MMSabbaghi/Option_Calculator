@@ -303,7 +303,7 @@ saveBtn.addEventListener("click", (e) => {
           totalcost: totalCost,
           sellprice: sellPriceVal,
           steps: JSON.stringify(steps),
-          instrument,
+          instrument: toPersianDigits(instrument),
         };
 
         saveBtn.disabled = true;
