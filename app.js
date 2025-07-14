@@ -529,13 +529,29 @@ const fromDate = document.getElementById("fromDate");
 const toDate = document.getElementById("toDate");
 const clearFilter = document.getElementById("clearFilter");
 
-function getCurrentJalaliYear() {
+function getCurrentJalaliDate() {
   const now = new Date();
-  return jalaali.toJalaali(
+  const jDate = jalaali.toJalaali(
     now.getFullYear(),
     now.getMonth() + 1,
     now.getDate()
   );
+  return {
+    currentYear: jDate.jy,
+    currentMonth: jDate.jm,
+    currentDay: jDate.jd,
+  };
+}
+
+function getMonthMaxDay(month, year) {
+  let maxDay = 31;
+  if (month > 6 && month < 12) {
+    maxDay = 30;
+  } else if (month === 12) {
+    const isKabise = [1, 5, 9, 13, 17, 22, 26, 30].includes(year % 33);
+    maxDay = isKabise ? 30 : 29;
+  }
+  return maxDay;
 }
 
 function populate(id) {
@@ -543,8 +559,7 @@ function populate(id) {
   const ys = c.querySelector(".year"),
     ms = c.querySelector(".month"),
     ds = c.querySelector(".day");
-
-  const currentYear = getCurrentJalaliYear().jy;
+  const { currentDay, currentMonth, currentYear } = getCurrentJalaliDate();
 
   for (let y = currentYear - 20; y <= currentYear; y++) {
     const selected = y === currentYear ? "selected" : "";
@@ -553,33 +568,31 @@ function populate(id) {
     )}</option>`;
   }
 
-  months.forEach(
-    (m, i) => (ms.innerHTML += `<option value="${i + 1}">${m}</option>`)
-  );
+  months.forEach((m, i) => {
+    const selected = i + 1 === currentMonth ? "selected" : "";
+    ms.innerHTML += `<option value="${i + 1}"  ${selected}>${m}</option>`;
+  });
 
-  ds.innerHTML = `<option value="">روز</option>`;
+  for (let d = 1; d <= getMonthMaxDay(+ms.value, +ys.value); d++) {
+    const selected = d === currentDay ? "selected" : "";
+    ds.innerHTML += `<option value="${d}" ${selected}>${toPersianDigits(
+      d
+    )}</option>`;
+  }
 
-  ds.disabled = true;
   ms.addEventListener("change", () => {
     const m = +ms.value;
     const y = +ys.value;
-    const selectedDay = +ds.value;
+    let selectedDay = +ds.value;
 
-    let maxDay = 31;
-
-    if (m > 6 && m < 12) {
-      maxDay = 30;
-    } else if (m === 12) {
-      const isKabise = [1, 5, 9, 13, 17, 22, 26, 30].includes(y % 33);
-      maxDay = isKabise ? 30 : 29;
-    }
-
+    const maxDay = getMonthMaxDay(m, y);
     // اگر روز انتخاب‌شده از حداکثر مجاز ماه بیشتر بود، اصلاحش کن
     if (selectedDay > maxDay) {
       ds.value = maxDay.toString();
       selectedDay = maxDay;
     }
 
+    ds.disabled = true;
     ds.innerHTML = `<option value="">روز</option>`;
     if (m > 0) {
       ds.disabled = false;
