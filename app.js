@@ -521,7 +521,6 @@ document.getElementById("showTradesBtn").addEventListener("click", async () => {
   const res = await fetch(SHEETDB_API);
   allTrades = await res.json();
   // allTrades = [...RAW_DATA];
-  filteredData = [...allTrades];
 
   renderTradesList(allTrades);
 });
@@ -624,45 +623,51 @@ function getInput(id) {
   return y && m && d ? jalaliToGregorianDate(y, m, d) : null;
 }
 
-function applyOrReset() {
-  const from = getInput("fromDate"),
-    to = getInput("toDate");
+let isDateFilterActive = false;
 
-  if (!from || !to) {
-    showToast("لطفاً تمام فیلدهای تاریخ را انتخاب کنید.", "error");
-    filteredData = [...allTrades];
-    clearFilter.style.display = "none";
-    renderTradesList(filteredData);
-    return;
+function applyFilters() {
+  const from = getInput("fromDate");
+  const to = getInput("toDate");
+  const query = document.getElementById("searchInput").value.trim();
+
+  if (isDateFilterActive) {
+    if (!from || !to) {
+      showToast("لطفاً تمام فیلدهای تاریخ را انتخاب کنید.", "error");
+      return;
+    }
+
+    if (from > to) {
+      showToast("تاریخ شروع نمی‌تواند بزرگ‌تر از تاریخ پایان باشد.", "error");
+      return;
+    }
+    clearFilter.style.display = "inline-block";
   }
 
-  if (from > to) {
-    showToast("تاریخ شروع نمی‌تواند بزرگ‌تر از تاریخ پایان باشد.", "error");
-    return;
-  }
+  filteredData = allTrades.filter((item) => {
+    const d = new Date(item.datetime);
+    const dOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-  filteredData = allTrades.filter((i) => {
-    const d = new Date(i.datetime);
-    const dOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate()); // حذف ساعت
-    return dOnly >= from && dOnly <= to;
+    const dateMatch = (!from || dOnly >= from) && (!to || dOnly <= to);
+    const nameMatch = !query || item.instrument.includes(query);
+
+    if (isDateFilterActive) return dateMatch && nameMatch;
+    else return nameMatch;
   });
 
-  clearFilter.style.display = "inline-block";
   renderTradesList(filteredData);
 }
 
-document.getElementById("filterButton").addEventListener("click", applyOrReset);
-
-clearFilter.addEventListener("click", () => {
-  populate("fromDate");
-  populate("toDate");
-  filteredData = [...allTrades];
-  clearFilter.style.display = "none";
-  renderTradesList(filteredData);
+document.getElementById("filterButton").addEventListener("click", () => {
+  isDateFilterActive = true;
+  applyFilters();
 });
 
-document.getElementById("searchInput").addEventListener("input", function () {
-  const query = this.value.trim();
-  filteredData = allTrades.filter((item) => item.instrument.includes(query));
-  renderTradesList(filteredData);
+document.getElementById("searchInput").addEventListener("input", applyFilters);
+
+clearFilter.addEventListener("click", () => {
+  clearFilter.style.display = "none";
+  populate("fromDate");
+  populate("toDate");
+  isDateFilterActive = false;
+  applyFilters();
 });
