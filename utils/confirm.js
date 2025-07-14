@@ -137,6 +137,7 @@
   cancel.onclick = hideConfirm;
 
   confirm.onclick = function () {
+    hideConfirm();
     if (typeof onConfirm === "function") onConfirm(input.value);
   };
 

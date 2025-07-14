@@ -280,7 +280,8 @@ const emptyForm = () => {
   `;
 };
 
-document.getElementById("saveTradeBtn").addEventListener("click", (e) => {
+const saveBtn = document.getElementById("saveTradeBtn");
+saveBtn.addEventListener("click", (e) => {
   const { sellPriceVal, steps } = getTradeFormData();
   const { isValid, msg } = isValidTrade({ sellPriceVal, steps });
 
@@ -305,14 +306,13 @@ document.getElementById("saveTradeBtn").addEventListener("click", (e) => {
           instrument,
         };
 
-        alert(trade);
-
-        e.target.disabled = true;
-        e.target.innerHTML = `<span class="loader"></span>`;
+        saveBtn.disabled = true;
+        const prevHtml = saveBtn.innerHTML;
+        saveBtn.innerHTML = `<span class="loader"></span>`;
         const { isSucsess } = await saveTradeToSheet(trade);
         if (isSucsess) emptyForm();
-        e.target.disabled = false;
-        e.target.innerHTML = "ذخیره معامله";
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = prevHtml;
       } else {
         showToast(" نام وارد شده باید حداقل شامل دو حرف باشد. ", "error");
       }
