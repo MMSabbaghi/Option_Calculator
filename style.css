@@ -473,6 +473,23 @@ button:hover {
   background: #c82333;
 }
 
+.search-box {
+  position: relative;
+}
+
+.search-box > i {
+  position: absolute;
+  top: 15%;
+  left: 10px;
+  color: var(--border);
+}
+
+.search-box > input {
+  margin: 0 0 5px 0;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
 .skeleton {
   animation: skeleton-loading 1s linear infinite alternate;
 }

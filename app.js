@@ -521,6 +521,7 @@ document.getElementById("showTradesBtn").addEventListener("click", async () => {
   const res = await fetch(SHEETDB_API);
   allTrades = await res.json();
   // allTrades = [...RAW_DATA];
+  filteredData = [...allTrades];
 
   renderTradesList(allTrades);
 });
@@ -651,10 +652,17 @@ function applyOrReset() {
 }
 
 document.getElementById("filterButton").addEventListener("click", applyOrReset);
+
 clearFilter.addEventListener("click", () => {
   populate("fromDate");
   populate("toDate");
   filteredData = [...allTrades];
   clearFilter.style.display = "none";
+  renderTradesList(filteredData);
+});
+
+document.getElementById("searchInput").addEventListener("input", function () {
+  const query = this.value.trim();
+  filteredData = allTrades.filter((item) => item.instrument.includes(query));
   renderTradesList(filteredData);
 });
