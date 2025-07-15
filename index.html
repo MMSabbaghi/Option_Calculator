@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title> پرافیت | ثبت معاملات روزانه </title>
+  <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="./icons/bootstrap-icons.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -12,7 +13,7 @@
 <body>
   <div class="container">
     <div class="logo">
-      <img src="./logo.svg" alt="logo">
+      <img src="./logo/logo.svg" alt="logo">
       <h1> ثبت معاملات روزانه </h1>
     </div>
 
@@ -138,6 +139,17 @@
 
   <!-- <script src="./utils/rawData.js"></script> -->
   <script src="./app.js"></script>
+  <script>
+    navigator.serviceWorker?.register('/Option_Calculator/sw.js', { scope: '/Option_Calculator/' })
+      .then(function (reg) {
+        // registration worked
+        console.log('Registration succeeded. Scope is ' + reg.scope);
+      })
+      .catch(function (error) {
+        // registration failed
+        console.log('Registration failed with ' + error);
+      });
+  </script>
 </body>
 
 </html>

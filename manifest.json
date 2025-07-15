@@ -1,0 +1,25 @@
+{
+  "theme_color": "#f0f4f8",
+  "background_color": "#4a90e2",
+  "icons": [
+    {
+      "purpose": "maskable",
+      "sizes": "512x512",
+      "src": "./logo/icon512_maskable.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "512x512",
+      "src": "./logo/icon512_rounded.png",
+      "type": "image/png"
+    }
+  ],
+  "orientation": "any",
+  "display": "standalone",
+  "dir": "auto",
+  "lang": "en-US",
+  "name": "پرافیت",
+  "short_name": "ثبت معاملات روزانه",
+  "start_url": "https://mmsabbaghi.github.io/Option_Calculator/"
+}
