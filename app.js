@@ -131,6 +131,7 @@ document.getElementById("calcBtn").addEventListener("click", () => {
   const resultBox = document.getElementById("calcResult");
   resultBox.innerHTML = resultHTML;
   resultBox.style.display = "block";
+  resultBox.scrollIntoView({ behavior: "smooth" });
 });
 
 function parseInputValue(id) {
@@ -351,6 +352,7 @@ document.getElementById("profitBtn").addEventListener("click", () => {
     })}
   `;
     rBox.style.display = "block";
+    rBox.scrollIntoView({ behavior: "smooth" });
   } else {
     showToast(msg, "error");
   }
