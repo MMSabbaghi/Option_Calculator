@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> پرافیت | ثبت معاملات روزانه </title>
+  <title> پرافیت | دستیار معاملات روزانه </title>
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="./icons/bootstrap-icons.min.css">
   <link rel="stylesheet" href="style.css">
@@ -14,14 +14,24 @@
   <div class="container">
     <div class="logo">
       <img src="./logo/logo.svg" alt="logo">
-      <h1> ثبت معاملات روزانه </h1>
+      <h1> دستیار معاملات روزانه </h1>
+    </div>
+
+    <div class="alert">
+      <p>
+        <i class="bi bi-stars"></i>
+        برای مشاهده
+        <a href="./strategy_calculator/steategy_calc.html">
+          ماشین حساب استراتژی های اختیار معامله
+        </a>
+        کلیک کنید.
+      </p>
     </div>
 
     <div class="switcher">
       <button id="btnProfit" class="active">محاسبه سود خالص </button>
       <button id="btnCalc">محاسبه حد سود و ضرر</button>
     </div>
-
     <div>
       <div id="formCalc" style="display:none;">
         <label>پریمیوم (ریال):</label>
@@ -49,8 +59,10 @@
         <button class="add-step" onclick="addStep()">
           <i class="bi bi-plus-lg"></i>
         </button>
-        <label> قیمت فروش(ریال):</label>
-        <input id="sellPrice" type="text" placeholder="قیمت فروش">
+        <div>
+          <label> قیمت فروش(ریال):</label>
+          <input id="sellPrice" type="text" placeholder="قیمت فروش">
+        </div>
         <div class="action-btns">
           <button id="profitBtn">
             <i class="bi bi-calculator-fill"></i>
@@ -136,6 +148,7 @@
   <script src="./utils/alert.js"></script>
   <script src="./utils/confirm.js"></script>
   <script src="./utils/jalaali.min.js"></script>
+  <script src="./utils/utils.js"></script>
 
   <!-- <script src="./utils/rawData.js"></script> -->
   <script src="./app.js"></script>

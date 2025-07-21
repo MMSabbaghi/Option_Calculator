@@ -17,6 +17,11 @@ const assetsToCache = [
   "/Option_Calculator/utils/confirm.js",
   "/Option_Calculator/utils/jalaali.min.js",
   "/Option_Calculator/utils/alert.js",
+  "/Option_Calculator/utils/utils.js",
+  "/Option_Calculator/strategy_calculator/steategy_calc.css",
+  "/Option_Calculator/strategy_calculator/steategy_calc.html",
+  "/Option_Calculator/strategy_calculator/steategy_calc.js",
+  "/Option_Calculator/strategy_calculator/strategies.js",
 ];
 
 self.addEventListener("install", function (event) {

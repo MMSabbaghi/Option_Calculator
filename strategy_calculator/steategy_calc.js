@@ -1,0 +1,345 @@
+////////////
+const stockSelect = document.getElementById("stockSelect");
+const strategySelect = document.getElementById("strategySelect");
+const formContainer = document.getElementById("formContainer");
+const formFields = document.getElementById("formFields");
+const calculateBtn = document.getElementById("calculateBtn");
+const resultBox = document.getElementById("result");
+const stockPriceInput = document.getElementById("stockPrice");
+const strategyTips = document.getElementById("strategyTips");
+const strategyLearnBtn = document.getElementById("strategyLearnBtn");
+//////////////
+let stocks = [
+  { id: "17914401175772326", name: "اهرم", price: 0, contracts: [] },
+  { id: "65883838195688438", name: "خودرو", price: 0, contracts: [] },
+  { id: "44891482026867833", name: "خساپا", price: 0, contracts: [] },
+  { id: "2400322364771558", name: "شستا", price: 0, contracts: [] },
+  { id: "778253364357513", name: "وبملت", price: 0, contracts: [] },
+  { id: "71483646978964608", name: "ذوب", price: 0, contracts: [] },
+];
+
+function getCurrentStock() {
+  return stocks.find((s) => s.id === stockSelect.value);
+}
+
+function getCurrentStrategy() {
+  return strategies.find((s) => s.name === strategySelect.value);
+}
+
+function showLoader() {
+  document.getElementById("loader").style.display = "flex";
+}
+
+function hideLoader() {
+  document.getElementById("loader").style.display = "none";
+}
+///////////////////////
+
+window.onload = () => {
+  const savedData = localStorage.getItem("stocksData");
+  if (savedData) {
+    stocks = JSON.parse(savedData);
+  }
+  populateSelect();
+  loadStock();
+
+  /// update prices after 1min
+  setTimeout(() => updatePrices(), 60000);
+};
+
+function populateSelect() {
+  stockSelect.innerHTML = "";
+  stocks.forEach((stock) => {
+    const option = document.createElement("option");
+    option.value = stock.id;
+    option.textContent = stock.name;
+    stockSelect.appendChild(option);
+  });
+}
+
+function loadStock() {
+  const stock = getCurrentStock();
+  stockPriceInput.value = toPersianDigits(stock.price) || "---";
+
+  if (stock.contracts.length > 0) {
+    updatePrices();
+    renderForm();
+  } else {
+    fetchStockData(stock);
+  }
+}
+
+async function fetchStockData(stock) {
+  showLoader();
+  try {
+    const pageURL = `https://tradersarena.ir/options/${
+      stock.id
+    }/${encodeURIComponent(stock.name)}`;
+
+    const res = await fetch(pageURL);
+    const text = await res.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, "text/html");
+
+    const tables = doc.querySelectorAll("div.btn-group-2 table");
+    if (tables.length < 2) {
+      alert(`جدول کافی برای ${stock.name} یافت نشد.`);
+      hideLoader();
+      return;
+    }
+
+    stock.contracts = [];
+
+    [tables[0], tables[1]].forEach((table) => {
+      const rows = table.querySelectorAll("tbody tr");
+      rows.forEach((row) => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length >= 3) {
+          const link = cells[0].querySelector("a.symbol");
+          if (!link) return;
+
+          const hrefParts = link.getAttribute("href").split("/");
+          const id = hrefParts[hrefParts.length - 1].trim();
+          const name = link.textContent.trim();
+          const strike = parseFloat(
+            cells[2].innerText.trim().replace(/,/g, "")
+          );
+          const type = name.startsWith("ض")
+            ? "call"
+            : name.startsWith("ط")
+            ? "put"
+            : "unknown";
+
+          stock.contracts.push({
+            id,
+            name,
+            strike,
+            premium: "---",
+            type,
+          });
+        }
+      });
+    });
+
+    saveData();
+    renderForm();
+    await updatePrices();
+  } catch (e) {
+    console.error(e);
+    alert("خطا در واکشی داده‌های سهم.");
+  } finally {
+    hideLoader();
+  }
+}
+
+async function updatePrices() {
+  const stock = getCurrentStock();
+  if (stock.contracts.length === 0) return;
+
+  showLoader();
+  try {
+    // قیمت قراردادها
+    const apiURL = `https://tradersarena.ir/data/options/candles/${stock.id}`;
+    const res = await fetch(apiURL);
+    const data = await res.json();
+
+    stock.contracts.forEach((contract) => {
+      const found = data.find((entry) => entry.id === contract.id);
+      contract.premium = found ? found.close : 0;
+    });
+
+    // قیمت سهم اصلی از info API
+    const infoURL = `https://tradersarena.ir/data/${stock.id}/info`;
+    const resInfo = await fetch(infoURL);
+    const dataInfo = await resInfo.json();
+    if (dataInfo && dataInfo.cl) {
+      stock.price = parseFloat(dataInfo.cl);
+      stockPriceInput.value = toPersianDigits(stock.price);
+    }
+
+    saveData();
+    renderForm();
+  } catch (e) {
+    console.error(e);
+  } finally {
+    hideLoader();
+  }
+}
+
+function saveData() {
+  localStorage.setItem("stocksData", JSON.stringify(stocks));
+}
+
+//////////////
+
+// Load strategies
+strategies.forEach((st) => {
+  const opt = document.createElement("option");
+  opt.value = st.name;
+  opt.textContent = st.displayName;
+  strategySelect.appendChild(opt);
+});
+
+// Set default strategy
+strategySelect.value = strategies[0].name; // Set default strategy here
+
+function renderTips(tips, learnHref) {
+  strategyTips.innerHTML = tips
+    .map(
+      (tip) => `
+        <div class="tip show">
+        <i class="bi bi-check-circle-fill"></i>
+        <span> ${tip} </span>
+        </div>
+    `
+    )
+    .join("");
+  strategyLearnBtn.action = learnHref;
+}
+
+strategySelect.addEventListener("change", renderForm);
+
+function renderForm() {
+  const stock = getCurrentStock();
+  const strategy = getCurrentStrategy();
+  renderTips(strategy.tips, strategy.learnHref);
+
+  formFields.innerHTML = "";
+
+  if (stock.contracts.length === 0) {
+    formFields.innerHTML = `<p class="form-error">هیچ قراردادی برای این سهم یافت نشد.</p>`;
+    formContainer.style.display = "block";
+    resultBox.innerHTML = "";
+    return;
+  }
+
+  strategy.inputs.forEach((input) => {
+    const contracts = stock.contracts.filter((c) => c.type === input.type);
+
+    if (contracts.length === 0) {
+      formFields.innerHTML += `<p class="form-error">هیچ قرارداد  ${
+        input.type === "call" ? "اختیار خریدی" : "اختیار فروشی"
+      } برای این سهم یافت نشد.</p>`;
+      return;
+    }
+
+    const options = contracts.map(
+      (c) =>
+        `<option value="${c.id}">${toPersianDigits(
+          c.name
+        )} (اعمال: ${toPersianDigits(c.strike)})</option>`
+    );
+
+    formFields.innerHTML += `
+          <div class="strategy-form-row ">
+        <div>
+          <label>قرارداد ${
+            input.type === "call" ? "اختیار خرید" : "اختیار فروش"
+          }:</label>
+          <select class="contractSelect" data-key="${
+            input.key
+          }">${options}</select>
+        </div>
+        <div>
+          <label>پرمیوم ${
+            input.position === "long" ? "پرداختی" : "دریافتی"
+          } : </label>
+          <input class="premiumInput" oninput="toPersianInput(this)" data-key="${
+            input.key
+          }" value="${toPersianDigits(contracts[0].premium)}">
+        </div>
+      </div>
+    `;
+
+    document.querySelector(".output")?.classList.remove("output");
+  });
+
+  formContainer.style.display = "block";
+  resultBox.innerHTML = "";
+
+  document.querySelectorAll(".contractSelect").forEach((select) => {
+    select.onchange = function () {
+      const key = this.dataset.key;
+      const contracts = stock.contracts.filter(
+        (c) => c.type === (key.includes("call") ? "call" : "put")
+      );
+      const selected = contracts.find((c) => c.id === this.value);
+      document.querySelector(`.premiumInput[data-key="${key}"]`).value =
+        toPersianDigits(selected.premium);
+    };
+  });
+}
+
+function validateInputs(stockPrice, inputs) {
+  if (!isValidNumber(stockPrice))
+    return { isValid: false, msg: "قیمت سهم نامعتبر است." };
+
+  for (const contract in inputs) {
+    const { premium } = inputs[contract];
+    if (!isValidNumber(premium)) {
+      return { isValid: false, msg: "پرمیوم قراردادها را به درستی وارد کنید." };
+    }
+  }
+
+  return { isValid: true, msg: null };
+}
+
+function toggleTip(tipId, iconId) {
+  const tip = document.getElementById(tipId);
+  const icon = document.getElementById(iconId);
+  tip.classList.toggle("show");
+  icon.classList.toggle("active");
+}
+
+function renderCalcResult(profit, loss) {
+  resultBox.innerHTML = `
+  <div class="strategy-card">
+    <div class="result-line">
+      <span class="result-label" >حداکثر سود:</span>
+      <div class="result-right">
+        <span class="profit">${toPersianDigits(profit.maxProfit)} ٪</span>
+        <span class="info-icon" id="icon1" onclick="toggleTip('tip1', 'icon1')"><i class="bi bi-info-circle"></i></span>
+      </div>
+    </div>
+    <div class="tip" id="tip1">${profit.tip}</div>
+    <div class="result-line">
+      <span class="result-label">حداکثر زیان:</span>
+      <div class="result-right">
+        <span class="loss">${toPersianDigits(loss.maxLoss)} ٪</span>
+        <span class="info-icon" id="icon2" onclick="toggleTip('tip2', 'icon2')"><i class="bi bi-info-circle"></i></span>
+      </div>
+    </div>
+    <div class="tip" id="tip2">${loss.tip}</div>
+  </div>
+        `;
+  resultBox.scrollIntoView({ behavior: "smooth" });
+}
+
+calculateBtn.addEventListener("click", () => {
+  const stock = getCurrentStock();
+  const strategy = getCurrentStrategy();
+  if (!stock || !strategy) return;
+
+  const stockPrice = +fromPersianDigits(stockPriceInput.value);
+
+  const inputs = {};
+  document.querySelectorAll(".premiumInput").forEach((input) => {
+    inputs[input.dataset.key] = { premium: +fromPersianDigits(input.value) };
+  });
+
+  document.querySelectorAll(".contractSelect").forEach((select) => {
+    inputs[select.dataset.key].strike = stock.contracts.find(
+      (c) => c.id === select.value
+    ).strike;
+  });
+
+  const { isValid, msg } = validateInputs(stockPrice, inputs);
+
+  if (isValid) {
+    const profit = strategy.getMaxProfit(stockPrice, inputs);
+    const loss = strategy.getMaxLoss(stockPrice, inputs);
+    renderCalcResult(profit, loss);
+  } else {
+    showToast(msg, "error");
+  }
+});

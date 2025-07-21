@@ -17,52 +17,9 @@ const months = [
 let allTrades = [];
 let filteredData = [];
 
-// تبدیل اعداد فارسی به انگلیسی
-function fromPersianDigits(str) {
-  return (str + "")
-    .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
-    .replace(/٬|,/g, "");
-}
-
-// تبدیل اعداد انگلیسی به فارسی
-function toPersianDigits(str) {
-  return (str + "").replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
-}
-
-// جداکننده هزارگان فارسی
-function formatWithSeparatorsFa(num) {
-  return toPersianDigits(num.toLocaleString("fa-IR"));
-}
-
-// فارسی کردن اینپوت‌ها
-function toPersianInput(input) {
-  let raw = fromPersianDigits(input.value);
-  raw = raw.replace(/[^\d]/g, "");
-  raw = raw.replace(/^0+/, "");
-  input.value = toPersianDigits(raw);
-}
-
 // کارمزد رفت و برگشت
 function calculateSpread(price) {
   return price * 0.00206;
-}
-
-function formatToJalali(dt) {
-  return new Intl.DateTimeFormat("fa-IR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date(dt));
-}
-
-function formatToToman(amountInRial) {
-  const amountInToman = Math.floor(amountInRial / 10);
-  return (
-    new Intl.NumberFormat("fa-IR", {
-      useGrouping: true,
-      maximumFractionDigits: 0,
-    }).format(amountInToman) + " تومان"
-  );
 }
 
 // سوییچ فرم‌ها
@@ -210,10 +167,6 @@ function calculateTradeResults({ steps, sellPriceVal, fee = 0.00102 }) {
   };
 }
 
-const isValidNumber = (num) => {
-  return typeof num === "number" && num > 0;
-};
-
 const isValidTrade = ({ steps, sellPriceVal }) => {
   if (!isValidNumber(sellPriceVal)) {
     return { isValid: false, msg: "قیمت فروش را وارد کنید" };
@@ -357,14 +310,6 @@ document.getElementById("profitBtn").addEventListener("click", () => {
     showToast(msg, "error");
   }
 });
-
-function openModal() {
-  document.getElementById("modal").classList.add("active");
-}
-
-function closeModal() {
-  document.getElementById("modal").classList.remove("active");
-}
 
 function renderAccordion(trade) {
   const steps = JSON.parse(trade.steps || "[]")

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> پرافیت | دستیار معاملات روزانه </title>
+  <link rel="stylesheet" href="../icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="steategy_calc.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="../logo/logo.svg" alt="logo">
+      <h1> دستیار معاملات روزانه </h1>
+    </div>
+
+    <div class="main-content">
+      <h2 class="linear-wipe"> ماشین حساب استراتژی‌های اختیار معامله</h2>
+
+      <div class="strategy-select">
+        <div>
+          <i class="bi bi-stars"></i>
+          <span> انتخاب استراتژی : </span>
+        </div>
+        <select id="strategySelect"></select>
+      </div>
+      <div class="strategy-tips">
+        <div id="strategyTips">
+        </div>
+        <form id="strategyLearnBtn" target="_blank" action="/">
+          <button type="submit" class="strategy-tips-more">
+            <i class="bi bi-info-circle"></i>
+            <span>آموزش</span>
+          </button>
+        </form>
+      </div>
+      <div class="strategy-form-row ">
+        <div>
+          <label>سهم پایه:</label>
+          <select id="stockSelect" onchange="loadStock()"></select>
+        </div>
+        <div>
+          <label>قیمت سهم:</label>
+          <input oninput="toPersianInput(this)" id="stockPrice">
+        </div>
+      </div>
+
+      <div id="formContainer" style="display:none;">
+        <div id="formFields" class="form-fields"></div>
+        <button id="calculateBtn">
+          <i class="bi bi-calculator-fill"></i>
+          <span> محاسبه </span>
+        </button>
+        <div id="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loader-overlay" id="loader">
+    <div class="spinner"></div>
+  </div>
+
+  <script src="../utils/alert.js"></script>
+  <script src="../utils/utils.js"></script>
+  <script src="./strategies.js"></script>
+  <script src="./steategy_calc.js"></script>
+</body>
+
+</html>
