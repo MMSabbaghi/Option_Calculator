@@ -80,7 +80,7 @@ async function fetchStockData(stock) {
 
     const tables = doc.querySelectorAll("div.btn-group-2 table");
     if (tables.length < 2) {
-      alert(`جدول کافی برای ${stock.name} یافت نشد.`);
+      showToast("قرارداد کافی برای این سهم یافت نشد!", "error");
       hideLoader();
       return;
     }
@@ -123,7 +123,10 @@ async function fetchStockData(stock) {
     await updatePrices();
   } catch (e) {
     console.error(e);
-    alert("خطا در واکشی داده‌های سهم.");
+    showToast(
+      "خطا در دریافت اطلاعات. اتصال اینترنت  خود را بررسی کنید.",
+      "error"
+    );
   } finally {
     hideLoader();
   }
