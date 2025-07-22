@@ -337,10 +337,12 @@ button:hover {
 
 .val-pos {
   color: var(--primary) !important;
+  direction: ltr;
 }
 
 .val-neg {
   color: var(--danger) !important;
+  direction: ltr;
 }
 
 .delete-btn {

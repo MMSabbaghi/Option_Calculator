@@ -211,10 +211,12 @@ select {
 
 .profit {
   color: var(--primary);
+  direction: ltr;
 }
 
 .loss {
   color: var(--danger);
+  direction: ltr;
 }
 
 .info-icon {
