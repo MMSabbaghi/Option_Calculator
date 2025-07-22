@@ -246,7 +246,8 @@ function renderForm() {
     formFields.innerHTML += `
           <div class="strategy-form-row ">
         <div>
-          <label>قرارداد ${
+          <label>${input.position === "long" ? "خرید" : "فروش"}
+          قرارداد ${
             input.type === "call" ? "اختیار خرید" : "اختیار فروش"
           }:</label>
           <select class="contractSelect" data-key="${
