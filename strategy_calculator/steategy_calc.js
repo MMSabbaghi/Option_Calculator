@@ -87,7 +87,7 @@ async function fetchStockData(stock) {
 
     stock.contracts = [];
 
-    [tables[0], tables[1]].forEach((table) => {
+    [tables[0], tables[1], tables[2], tables[3]].forEach((table) => {
       const rows = table.querySelectorAll("tbody tr");
       rows.forEach((row) => {
         const cells = row.querySelectorAll("td");
