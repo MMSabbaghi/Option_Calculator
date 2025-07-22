@@ -311,28 +311,6 @@ document.getElementById("profitBtn").addEventListener("click", () => {
   }
 });
 
-function renderAccordion(trade) {
-  const steps = JSON.parse(trade.steps || "[]")
-    .map(
-      (s) =>
-        `<div>قیمت: ${formatWithSeparatorsFa(
-          s.price
-        )} | تعداد: ${formatWithSeparatorsFa(s.qty)}</div>`
-    )
-    .join("");
-  return `
-    <li class="accordion">
-        <div class="accordion-header">${toJalaaliDateStr(
-          trade.datetime
-        )} - سود: ${formatToToman(trade.profit)}</div>
-        <div class="accordion-body">
-            <div>مبلغ کل: ${formatToToman(trade.totalcost)}</div>
-            <div>قیمت فروش: ${formatWithSeparatorsFa(trade.sellprice)}</div>
-            <div>${steps}</div>
-        </div>
-    </li>`;
-}
-
 function attachAccordionEvents() {
   document.querySelectorAll(".accordion-header").forEach((header) => {
     header.addEventListener("click", () => {
@@ -355,8 +333,12 @@ const renderTradesData = (data) => {
         .map(
           (s) =>
             `<div class="trade-item-step">
-      <span>قیمت: ${formatWithSeparatorsFa(s.price)}</span>
-      <span>تعداد: ${formatWithSeparatorsFa(s.qty)}</span>
+      <span class="trade-item-label">قیمت: ${formatWithSeparatorsFa(
+        s.price
+      )}</span>
+      <span class="trade-item-value">تعداد: ${formatWithSeparatorsFa(
+        s.qty
+      )}</span>
             </div>
             `
         )
