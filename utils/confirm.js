@@ -41,6 +41,7 @@
 
     .confirm-input {
       font-size: 14px;
+      margin-bottom: 5px;
     }
 
     .confirm-buttons {
@@ -110,8 +111,14 @@
       <h3>نام نماد مورد معامله را وارد کنید</h3>
       <input class="confirm-input" type="text" placeholder="مثلاً: خساپا" />
       <div class="confirm-buttons">
-        <button class="confirm-btn confirm-btn-cancel">لغو</button>
-        <button class="confirm-btn confirm-btn-confirm">تأیید</button>
+        <button class="confirm-btn confirm-btn-cancel">
+        <i class="bi bi-x-lg"></i>
+        لغو
+        </button>
+        <button class="confirm-btn confirm-btn-confirm">
+        <i class="bi bi-check-lg"></i>
+        تأیید
+        </button>
       </div>
     </div>
   `;
