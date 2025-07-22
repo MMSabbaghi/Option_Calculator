@@ -42,9 +42,6 @@ window.onload = () => {
   }
   populateSelect();
   loadStock();
-
-  /// update prices after 1min
-  setTimeout(() => updatePrices(), 60000);
 };
 
 function populateSelect() {
@@ -165,6 +162,19 @@ async function updatePrices() {
     hideLoader();
   }
 }
+
+const autoRefreshToggle = document.getElementById("autoRefreshToggle");
+let intervalId = null;
+
+autoRefreshToggle.addEventListener("change", () => {
+  if (autoRefreshToggle.checked) {
+    /// update prices after 1 min
+    intervalId = setInterval(() => updatePrices(), 60000);
+  } else {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+});
 
 function saveData() {
   localStorage.setItem("stocksData", JSON.stringify(stocks));

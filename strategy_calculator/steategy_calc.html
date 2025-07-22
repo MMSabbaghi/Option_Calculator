@@ -50,10 +50,19 @@
 
       <div id="formContainer" style="display:none;">
         <div id="formFields" class="form-fields"></div>
-        <button id="calculateBtn">
-          <i class="bi bi-calculator-fill"></i>
-          <span> محاسبه </span>
-        </button>
+        <div class="calc-btns">
+          <button id="calculateBtn">
+            <i class="bi bi-calculator-fill"></i>
+            <span> محاسبه </span>
+          </button>
+          <div class="left-section">
+            <label for="toggle" class="switch-label">رفرش <br> خودکار: </label>
+            <label class="switch">
+              <input type="checkbox" id="autoRefreshToggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
         <div id="result"></div>
       </div>
     </div>
