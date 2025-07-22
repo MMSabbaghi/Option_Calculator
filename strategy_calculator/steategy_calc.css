@@ -53,7 +53,6 @@ button {
   border-radius: var(--radius);
   border: 1px solid var(--border);
   box-sizing: border-box;
-  font-size: 1rem;
   transition: var(--transition);
 }
 
