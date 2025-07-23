@@ -37,9 +37,7 @@ function hideLoader() {
 
 window.onload = () => {
   const savedData = localStorage.getItem("stocksData");
-  if (savedData) {
-    stocks = JSON.parse(savedData);
-  }
+  if (savedData) stocks = JSON.parse(savedData);
   populateSelect();
   loadStock();
 };
@@ -66,6 +64,12 @@ function loadStock() {
   }
 }
 
+function extractExpiryDate(text) {
+  const match = text.match(/\d{4}\/\d{1,2}\/\d{1,2}/);
+  if (!match) return null;
+  return match[0].split("/").join("");
+}
+
 async function fetchStockData(stock) {
   showLoader();
   try {
@@ -79,6 +83,12 @@ async function fetchStockData(stock) {
     const doc = parser.parseFromString(text, "text/html");
 
     const tables = doc.querySelectorAll("div.btn-group-2 table");
+    const expiryDates = [
+      ...doc.querySelectorAll("div.btn-group-2 .spn:first-child"),
+    ]
+      .map((e) => +extractExpiryDate(e.innerHTML))
+      .filter((d) => d !== null);
+
     if (tables.length < 2) {
       showToast("قرارداد کافی برای این سهم یافت نشد!", "error");
       hideLoader();
@@ -87,7 +97,7 @@ async function fetchStockData(stock) {
 
     stock.contracts = [];
 
-    [tables[0], tables[1], tables[2], tables[3]].forEach((table) => {
+    [tables[0], tables[1], tables[2], tables[3]].forEach((table, index) => {
       const rows = table.querySelectorAll("tbody tr");
       rows.forEach((row) => {
         const cells = row.querySelectorAll("td");
@@ -113,6 +123,7 @@ async function fetchStockData(stock) {
             strike,
             premium: "---",
             type,
+            expiry: expiryDates[index],
           });
         }
       });
@@ -284,17 +295,13 @@ function renderForm() {
   });
 }
 
-function validateInputs(stockPrice, inputs) {
-  if (!isValidNumber(stockPrice))
-    return { isValid: false, msg: "قیمت سهم نامعتبر است." };
-
+function validatePremiums(inputs) {
   for (const contract in inputs) {
     const { premium } = inputs[contract];
     if (!isValidNumber(premium)) {
       return { isValid: false, msg: "پرمیوم قراردادها را به درستی وارد کنید." };
     }
   }
-
   return { isValid: true, msg: null };
 }
 
@@ -342,17 +349,25 @@ calculateBtn.addEventListener("click", () => {
   });
 
   document.querySelectorAll(".contractSelect").forEach((select) => {
-    inputs[select.dataset.key].strike = stock.contracts.find(
-      (c) => c.id === select.value
-    ).strike;
+    const contarct = stock.contracts.find((c) => c.id === select.value);
+    inputs[select.dataset.key].strike = contarct.strike;
+    inputs[select.dataset.key].expiry = contarct.expiry;
   });
 
-  const { isValid, msg } = validateInputs(stockPrice, inputs);
+  const { isValid, msg } = validatePremiums(inputs);
 
   if (isValid) {
-    const profit = strategy.getMaxProfit(stockPrice, inputs);
-    const loss = strategy.getMaxLoss(stockPrice, inputs);
-    renderCalcResult(profit, loss);
+    const { isValid, message } = strategy.validateStrategyInputs(
+      stockPrice,
+      inputs
+    );
+    if (isValid) {
+      const profit = strategy.getMaxProfit(stockPrice, inputs);
+      const loss = strategy.getMaxLoss(stockPrice, inputs);
+      renderCalcResult(profit, loss);
+    } else {
+      showToast(message, "error");
+    }
   } else {
     showToast(msg, "error");
   }

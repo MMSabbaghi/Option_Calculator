@@ -1,5 +1,9 @@
 const COMMISSION = 0.00102;
 
+const isValidPrice = (num) => {
+  return typeof num === "number" && num > 0;
+};
+
 const strategies = [
   {
     name: "coveredcall",
@@ -10,6 +14,14 @@ const strategies = [
     tips: [
       "موقعیت ایده‌آل جهت اجرای این استراتژی: انتظار صعودی بودن ملایم سهم یا از آن بهتر، رنج زدن سهم زیر قیمت اعمال تا موعد سررسید.",
     ],
+    validateStrategyInputs: (stockPrice, contracts) => {
+      const { strike } = contracts.callOption;
+      let message = null;
+      if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
+      else if (stockPrice >= strike)
+        message = "قیمت اعمال قرارداد باید از قیمت فعلی سهم بالاتر باشد.";
+      return { isValid: !!!message, message };
+    },
     getMaxProfit: (stockPrice, contracts) => {
       const { strike, premium } = contracts.callOption;
       const grossProfit = strike - stockPrice + premium;
@@ -45,6 +57,19 @@ const strategies = [
     tips: ["قراردادها باید دارای سررسید و قیمت اعمال یکسان باشند."],
     learnHref:
       "https://optionbaaz.ir/article/73/%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%DA%98%DB%8C-%DA%A9%D8%A7%D9%86%D9%88%D8%B1%DA%98%D9%86-Conversion-%D8%A7%D8%AE%D8%AA%DB%8C%D8%A7%D8%B1-%D9%85%D8%B9%D8%A7%D9%85%D9%84%D9%87",
+
+    validateStrategyInputs: (stockPrice, contracts) => {
+      const { callOption, putOption } = contracts;
+      let message = null;
+
+      if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
+      else if (callOption.strike !== putOption.strike)
+        message = "قیمت اعمال قراردادها باید یکسان باشد.";
+      else if (callOption.expiry !== putOption.expiry)
+        message = "تاریخ سررسیدقرارداد ها باید یکسان باشد.";
+
+      return { isValid: !!!message, message };
+    },
 
     getMaxProfit: (stockPrice, contracts) => {
       const { premium: callPremium } = contracts.callOption;
@@ -82,6 +107,20 @@ const strategies = [
     ],
     learnHref:
       "https://optionbaaz.ir/article/141/%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%DA%98%DB%8C-%DA%A9%D9%88%D9%84%D8%A7%D8%B1-collar",
+    validateStrategyInputs: (stockPrice, contracts) => {
+      const { callOption, putOption } = contracts;
+      let message = null;
+
+      if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
+      else if (callOption.strike <= stockPrice)
+        message = "قیمت اعمال اختیار خرید باید بالاتر از قیمت سهم باشد.";
+      else if (putOption.strike >= stockPrice)
+        message = "قیمت اعمال اختیار فروش باید پایین‌تر از قیمت سهم باشد.";
+      else if (callOption.expiry !== putOption.expiry)
+        message = "تاریخ سررسید قرارداد ها باید یکسان باشد.";
+
+      return { isValid: !!!message, message };
+    },
     getMaxProfit: (stockPrice, contracts) => {
       const { strike: callStrike, premium: callPremium } = contracts.callOption;
       const { premium: putPremium } = contracts.putOption;
@@ -130,6 +169,37 @@ const strategies = [
     ],
     learnHref:
       "https://optionas.ir/blog/71/%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%DA%98%DB%8C-Iron-Condor-%D8%AF%D8%B1-%D9%85%D8%B9%D8%A7%D9%85%D9%84%D8%A7%D8%AA-%D8%A2%D9%BE%D8%B4%D9%86:-%DA%A9%D8%B3%D8%A8-%D8%B3%D9%88%D8%AF-%D8%AF%D8%B1-%D8%A8%D8%A7%D8%B2%D8%A7%D8%B1%D9%87%D8%A7%DB%8C-%DA%A9%D9%85%E2%80%8C%D9%86%D9%88%D8%B3%D8%A7%D9%86",
+
+    validateStrategyInputs: (stockPrice, contracts) => {
+      const { putLong, putShort, callShort, callLong } = contracts;
+      let message = null;
+
+      if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
+
+      const expiries = [
+        putLong.expiry,
+        putShort.expiry,
+        callShort.expiry,
+        callLong.expiry,
+      ];
+      const allSameExpiry = expiries.every((e) => e === expiries[0]);
+
+      if (!allSameExpiry)
+        message = "تمام قراردادها باید سررسید یکسان داشته باشند.";
+      else if (
+        !(
+          putLong.strike < putShort.strike &&
+          putShort.strike < callShort.strike &&
+          callShort.strike < callLong.strike
+        )
+      ) {
+        message =
+          "ترتیب قیمت‌های اعمال باید به‌صورت زیر باشد:\nاختیار فروش خریداری‌شده < اختیار فروش فروخته‌شده < اختیار خرید فروخته‌شده < اختیار خرید خریداری‌شده.";
+      }
+
+      return { isValid: !!!message, message };
+    },
+
     getMaxProfit: (stockPrice, contracts) => {
       const { premium: callShortPremium } = contracts.callShort;
       const { premium: callLongPremium } = contracts.callLong;
@@ -212,6 +282,18 @@ const strategies = [
     ],
     learnHref:
       "https://optionbaaz.ir/article/80/%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%DA%98%DB%8C-%D8%A7%D8%B3%D9%BE%D8%B1%D8%AF-%D8%B5%D8%B9%D9%88%D8%AF%DB%8C-%D8%A7%D8%AE%D8%AA%DB%8C%D8%A7%D8%B1-%D8%AE%D8%B1%DB%8C%D8%AF-Bull-Call-Spread",
+
+    validateStrategyInputs: (stockPrice, contracts) => {
+      const { callLong, callShort } = contracts;
+      let message = null;
+      if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
+      else if (callLong.expiry !== callShort.expiry)
+        message = "تاریخ سررسید دو قرارداد باید یکسان باشد.";
+      else if (callLong.strike >= callShort.strike)
+        message = "قیمت اعمال قرارداد خریداری‌شده باید پایین تر باشد.";
+
+      return { isValid: !!!message, message };
+    },
     getMaxProfit: (stockPrice, contracts) => {
       const { strike: callLongStrike, premium: callLongPremium } =
         contracts.callLong;
@@ -265,6 +347,17 @@ const strategies = [
     ],
     learnHref:
       "https://optionbaaz.ir/article/123/%D9%BE%D9%88%D8%AA-%D8%A7%D8%B3%D9%BE%D8%B1%D8%AF-%D9%86%D8%B2%D9%88%D9%84%DB%8C-Bear-put-spread",
+    validateStrategyInputs: (stockPrice, contracts) => {
+      const { putLong, putShort } = contracts;
+      let message = null;
+      if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
+      else if (putLong.expiry !== putShort.expiry)
+        message = "تاریخ سررسید قرارداد ها باید یکسان باشد.";
+      else if (putLong.strike <= putShort.strike)
+        message = "قیمت اعمال قرارداد فروخته شده باید پایین تر باشد.";
+
+      return { isValid: !!!message, message };
+    },
     getMaxProfit: (stockPrice, contracts) => {
       const { strike: putLongStrike, premium: putLongPremium } =
         contracts.putLong;
@@ -311,17 +404,25 @@ const strategies = [
   },
   {
     name: "longStraddle",
-    displayName: "لانگ استرادل",
+    displayName: "استرادل",
     tips: [
-      "در استراتژی لانگ استرادل همزمان یک اختیار خرید و یک اختیار فروش با قیمت اعمال یکسان خریداری می‌شود.",
+      "در استراتژی استرادل همزمان یک اختیار خرید و یک اختیار فروش با قیمت اعمال یکسان خریداری می‌شود.",
       "این استراتژی در بازارهای پرنوسان مفید است؛ چه قیمت سهم صعود کند، چه نزول شدید داشته باشد، سود خواهید برد.",
     ],
     learnHref:
       "https://optionbaaz.ir/article/60/%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%DA%98%DB%8C-%D9%85%D8%B9%D8%A7%D9%85%D9%84%D8%A7%D8%AA%DB%8C-%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AF%D9%84-%D8%AE%D8%B1%DB%8C%D8%AF-Long-straddle",
-    getMaxProfit: (stockPrice, contracts) => {
-      const { premium: callPremium } = contracts.callOption;
-      const { premium: putPremium } = contracts.putOption;
+    validateStrategyInputs: (stockPrice, contracts) => {
+      const { callOption, putOption } = contracts;
+      let message = null;
+      if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
+      else if (callOption.strike !== putOption.strike)
+        message = "قیمت اعمال قراردادها باید یکسان باشد.";
+      else if (callOption.expiry !== putOption.expiry)
+        message = "سررسید قراردادها باید یکسان باشد.";
 
+      return { isValid: !!!message, message };
+    },
+    getMaxProfit: (stockPrice, contracts) => {
       const grossProfit = "نامحدود"; // سود نامحدود در صورت افزایش شدید قیمت
 
       return {
