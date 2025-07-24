@@ -95,8 +95,8 @@ function showToast(message, type = "success") {
 
   // حذف توست بعد از 5 ثانیه
   setTimeout(() => {
-    // toast.remove();
+    toast.remove();
     // در صورت خالی بودن container می‌شه حذف بشه (اختیاری)
-    // if (!container.hasChildNodes()) container.remove();
+    if (!container.hasChildNodes()) container.remove();
   }, 5000);
 }
