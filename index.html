@@ -27,15 +27,9 @@
       </p>
     </div>
 
-    <h2 class="linear-wipe" style="margin-bottom: 5px;"> محاسبه و ذخیره معاملات روزانه</h2>
+    <h2 class="linear-wipe" style="margin-bottom: 5px;"> محاسبه سود و زیان معاملات </h2>
 
     <div>
-      <div id="formCalc" style="display:none;">
-        <label>درصد سود (٪):</label>
-        <input id="profitPercent" type="text" placeholder="درصد سود">
-        <label>درصد ضرر (٪):</label>
-        <input id="lossPercent" type="text" placeholder="درصد ضرر">
-      </div>
       <div id="formProfit">
         <div id="stepsList">
           <div class="step">
@@ -74,6 +68,9 @@
 
       </div>
     </div>
+    <button class="show-settings-btn" onclick="openModal('settingsModal')">
+      <i class="bi bi-gear-fill"></i>
+    </button>
   </div>
 
   <div id="modal" class="modal">
@@ -136,6 +133,39 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close" onclick="closeModal('settingsModal')"><i class="bi bi-x"></i></span>
+        <h3 style="margin: 0; padding: 0;">تنظیمات</h3>
+      </div>
+      <div class="modal-body">
+        <div id="settingsForm">
+          <div>
+            <label>حد سود (٪):</label>
+            <input id="profitPercent" type="text" placeholder="تارگت حد سود">
+          </div>
+          <div>
+            <label>حد ضرر (٪):</label>
+            <input id="lossPercent" type="text" placeholder="تارگت حد ضرر">
+          </div>
+          <div>
+            <label>اندازه قرادادها:</label>
+            <input id="contractSize" type="text" placeholder="اندازه هر قرارداد">
+          </div>
+          <div>
+            <label>کارمزد معاملات</label>
+            <input id="fee" type="text" placeholder="کارمزد معاملات">
+          </div>
+        </div>
+        <button id="saveSettingsBtn" style="margin-top: 8px;">
+          <span> ذخیره تنظیمات </span>
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <script src="./utils/alert.js"></script>

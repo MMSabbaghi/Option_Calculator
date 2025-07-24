@@ -16,11 +16,61 @@ const months = [
 
 let allTrades = [];
 let filteredData = [];
+let settings = {};
 
-// کارمزد رفت و برگشت
-function calculateSpread(price) {
-  return price * 0.00206;
+//////////
+const profitPercentEl = document.getElementById("profitPercent");
+const lossPercentEl = document.getElementById("lossPercent");
+const contractSizeEl = document.getElementById("contractSize");
+const feeEl = document.getElementById("fee");
+const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+
+const DEFAULT_SETTINGS = {
+  profitPercent: 2,
+  lossPercent: 1,
+  contractSize: 1000,
+  fee: 0.00206,
+};
+
+function loadSettings() {
+  settings =
+    JSON.parse(localStorage.getItem("trade_settings")) || DEFAULT_SETTINGS;
+  profitPercentEl.value = toPersianDigits(settings.profitPercent);
+  lossPercentEl.value = toPersianDigits(settings.lossPercent);
+  contractSizeEl.value = toPersianDigits(settings.contractSize);
+  feeEl.value = toPersianDigits(settings.fee);
 }
+loadSettings();
+
+function saveSettings({ profitPercent, lossPercent, contractSize, fee }) {
+  localStorage.setItem(
+    "trade_settings",
+    JSON.stringify({ profitPercent, lossPercent, contractSize, fee })
+  );
+}
+
+saveSettingsBtn.addEventListener("click", () => {
+  const profitPercent = +fromPersianDigits(profitPercentEl.value);
+  const lossPercent = +fromPersianDigits(lossPercentEl.value);
+  const contractSize = +fromPersianDigits(contractSizeEl.value);
+  const fee = +fromPersianDigits(feeEl.value);
+
+  if (
+    !isValidNumber(profitPercent) ||
+    !isValidNumber(lossPercent) ||
+    !isValidNumber(contractSize) ||
+    !isValidNumber(fee)
+  ) {
+    return showToast("تنظیمات نامعتبر است.", "error");
+  }
+
+  saveSettings({ profitPercent, lossPercent, contractSize, fee });
+  showToast("تنظیمات ذخیره شد.", "success");
+  loadSettings();
+  document.getElementById("profitResult").style.display = "none";
+});
+
+/////////
 
 // جلوگیری از وارد کردن غیر عدد
 document.querySelectorAll(".container input[type='text']").forEach((input) => {
@@ -66,16 +116,11 @@ async function saveTradeToSheet(trade) {
   }
 }
 
-// function calculateTargets({ price, profitPercent, lossPercent }) {
-//   const spread = calculateSpread(p);
-//   const sellTarget = p * (1 + r / 100) + spread;
-//   const stopLoss = p * (1 - l / 100) - spread;
-//   return { sellTarget, stopLoss };
-// }
-
-function calculateTradeResults({ steps, sellPriceVal, fee = 0.00102 }) {
+function calculateTradeResults({ steps, sellPriceVal }) {
   let totalCost = 0;
   let totalQty = 0;
+
+  const { fee, contractSize, profitPercent, lossPercent } = settings;
 
   steps.forEach((item) => {
     totalCost += item.price * (1 + fee) * item.qty; // هزینه خرید با کارمزد
@@ -85,13 +130,15 @@ function calculateTradeResults({ steps, sellPriceVal, fee = 0.00102 }) {
   if (totalQty === 0)
     return { breakEven: 0, profit: 0, totalCost: 0, percent: 0 };
 
-  const contractSize = 1000;
-
   // میانگین خرید با کارمزد
   const avgBuyWithFee = totalCost / totalQty;
 
   // قیمت سر به سر (باید به این قیمت بفروشیم تا سود صفر بشه)
   const breakEven = avgBuyWithFee / (1 - fee);
+
+  // محاسبه حد سود و ضرر
+  const sellTarget = breakEven * (1 + profitPercent / 100);
+  const stopLoss = breakEven * (1 - lossPercent / 100);
 
   // قیمت فروش واقعی (با احتساب کسر کارمزد فروش)
   const netSellPrice = sellPriceVal * (1 - fee);
@@ -111,6 +158,8 @@ function calculateTradeResults({ steps, sellPriceVal, fee = 0.00102 }) {
     profit,
     totalCost: totalCostFinal,
     percent,
+    sellTarget,
+    stopLoss,
   };
 }
 
@@ -230,11 +279,13 @@ document.getElementById("profitBtn").addEventListener("click", () => {
 
   if (isValid) {
     const rBox = document.getElementById("profitResult");
-    const { profit, percent, totalCost, breakEven } = calculateTradeResults({
-      sellPriceVal,
-      steps,
-    });
-    rBox.innerHTML = `${createResultRow({
+    const { profit, percent, totalCost, breakEven, sellTarget, stopLoss } =
+      calculateTradeResults({
+        sellPriceVal,
+        steps,
+      });
+    rBox.innerHTML = `
+    ${createResultRow({
       lbl: "مبلغ کل",
       val: formatToToman(totalCost),
     })}
@@ -250,6 +301,14 @@ document.getElementById("profitBtn").addEventListener("click", () => {
       lbl: "قیمت سر به سر",
       val: `${formatWithSeparatorsFa(+breakEven)} ریال`,
     })}
+        ${createResultRow({
+          lbl: ` حد سود (٪${toPersianDigits(settings.profitPercent)})`,
+          val: `${formatWithSeparatorsFa(+sellTarget)} ریال`,
+        })}
+        ${createResultRow({
+          lbl: ` حد ضرر (٪${toPersianDigits(settings.lossPercent)})`,
+          val: `${formatWithSeparatorsFa(+stopLoss)} ریال`,
+        })}
   `;
     rBox.style.display = "block";
     rBox.scrollIntoView({ behavior: "smooth" });
