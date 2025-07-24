@@ -616,4 +616,10 @@ button:hover {
   .date-group select {
     max-width: initial;
   }
+
+  .show-settings-btn {
+    top: initial;
+    top: -15px;
+    left: 3px;
+  }
 }
