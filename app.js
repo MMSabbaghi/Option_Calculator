@@ -49,25 +49,33 @@ function saveSettings({ profitPercent, lossPercent, contractSize, fee }) {
   );
 }
 
+function validateSettings({ profitPercent, lossPercent, contractSize, fee }) {
+  let msg = null;
+  if (!isValidNumber(profitPercent)) msg = "حد سود معتبر نیست.";
+  else if (!isValidNumber(lossPercent)) msg = "حدضرر معتبر نیست.";
+  else if (!isValidNumber(contractSize)) msg = "اندازه قرارداد معتبر نیست.";
+  else if (!isValidNumber(fee)) msg = "مقدار کارمزد معتبر نیست.";
+  return { isValid: !!!msg, msg };
+}
+
 saveSettingsBtn.addEventListener("click", () => {
-  const profitPercent = +fromPersianDigits(profitPercentEl.value);
-  const lossPercent = +fromPersianDigits(lossPercentEl.value);
-  const contractSize = +fromPersianDigits(contractSizeEl.value);
-  const fee = +fromPersianDigits(feeEl.value);
+  const newSettings = {
+    profitPercent: +fromPersianDigits(profitPercentEl.value),
+    lossPercent: +fromPersianDigits(lossPercentEl.value),
+    contractSize: +fromPersianDigits(contractSizeEl.value),
+    fee: +fromPersianDigits(feeEl.value),
+  };
 
-  if (
-    !isValidNumber(profitPercent) ||
-    !isValidNumber(lossPercent) ||
-    !isValidNumber(contractSize) ||
-    !isValidNumber(fee)
-  ) {
-    return showToast("تنظیمات نامعتبر است.", "error");
+  const { isValid, msg } = validateSettings(newSettings);
+
+  if (isValid) {
+    saveSettings(newSettings);
+    showToast("تنظیمات ذخیره شد.", "success");
+    loadSettings();
+    document.getElementById("profitResult").style.display = "none";
+  } else {
+    showToast(msg, "error");
   }
-
-  saveSettings({ profitPercent, lossPercent, contractSize, fee });
-  showToast("تنظیمات ذخیره شد.", "success");
-  loadSettings();
-  document.getElementById("profitResult").style.display = "none";
 });
 
 /////////

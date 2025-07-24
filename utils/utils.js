@@ -23,6 +23,16 @@ function toPersianInput(input) {
   input.value = toPersianDigits(raw);
 }
 
+function fromPersianFloatDigits(str) {
+  return str
+    .replace(/[۰-۹]/g, (d) => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)])
+    .replace(/[\/٫]/g, "."); // تبدیل ممیز فارسی یا اسلش به نقطه;
+}
+// فارسی کردن اینپوت‌ها
+function toPersianFloatInput(input) {
+  input.value = toPersianDigits(fromPersianFloatDigits(input.value));
+}
+
 function formatToJalali(dt) {
   return new Intl.DateTimeFormat("fa-IR", {
     year: "numeric",
