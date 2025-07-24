@@ -22,27 +22,6 @@ function calculateSpread(price) {
   return price * 0.00206;
 }
 
-// سوییچ فرم‌ها
-document
-  .getElementById("btnCalc")
-  .addEventListener("click", () => toggle("formCalc", "btnCalc"));
-document
-  .getElementById("btnProfit")
-  .addEventListener("click", () => toggle("formProfit", "btnProfit"));
-
-function toggle(formId, btnId) {
-  ["formCalc", "formProfit"].forEach((id) => {
-    document.getElementById(id).style.display = "none";
-  });
-  ["btnCalc", "btnProfit"].forEach((id) => {
-    document.getElementById(id).classList.remove("active");
-  });
-  document.getElementById(formId).style.display = "block";
-  document.getElementById(btnId).classList.add("active");
-  document.getElementById("calcResult").style.display = "none";
-  document.getElementById("profitResult").style.display = "none";
-}
-
 // جلوگیری از وارد کردن غیر عدد
 document.querySelectorAll(".container input[type='text']").forEach((input) => {
   input.addEventListener("input", () => toPersianInput(input));
@@ -56,46 +35,7 @@ const createResultRow = ({ lbl, val }) => {
   </div>`;
 };
 
-// فرم اول: محاسبه تارگت و حد ضرر
-document.getElementById("calcBtn").addEventListener("click", () => {
-  const p = parseInputValue("premium");
-  const r = parseInputValue("profitPercent");
-  const l = parseInputValue("lossPercent");
-
-  if (!isValidNumber(p) || !isValidNumber(r) || !isValidNumber(l)) {
-    showToast("تمام فیلد ها را کامل کنید.", "error");
-    return;
-  }
-
-  const spread = calculateSpread(p);
-  const sellTarget = p * (1 + r / 100) + spread;
-  const stopLoss = p * (1 - l / 100) - spread;
-
-  const resultHTML = `
-  ${createResultRow({
-    lbl: "کارمزد",
-    val: `${formatWithSeparatorsFa(spread)} ریال`,
-  })}
-  ${createResultRow({
-    lbl: "تارگت",
-    val: `${formatWithSeparatorsFa(sellTarget)} ریال`,
-  })}
-  ${createResultRow({
-    lbl: "حد ضرر",
-    val: `${formatWithSeparatorsFa(stopLoss)} ریال`,
-  })}
-    `;
-  const resultBox = document.getElementById("calcResult");
-  resultBox.innerHTML = resultHTML;
-  resultBox.style.display = "block";
-  resultBox.scrollIntoView({ behavior: "smooth" });
-});
-
-function parseInputValue(id) {
-  return +fromPersianDigits(document.getElementById(id).value || "0");
-}
-
-// فرم دوم: افزودن پله جدید
+//افزودن پله جدید
 function addStep() {
   const div = document.createElement("div");
   div.className = "step";
@@ -125,6 +65,13 @@ async function saveTradeToSheet(trade) {
     return { isSucsess: false };
   }
 }
+
+// function calculateTargets({ price, profitPercent, lossPercent }) {
+//   const spread = calculateSpread(p);
+//   const sellTarget = p * (1 + r / 100) + spread;
+//   const stopLoss = p * (1 - l / 100) - spread;
+//   return { sellTarget, stopLoss };
+// }
 
 function calculateTradeResults({ steps, sellPriceVal, fee = 0.00102 }) {
   let totalCost = 0;

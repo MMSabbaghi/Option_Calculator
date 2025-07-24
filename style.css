@@ -100,6 +100,40 @@ body {
   color: var(--primary-dark);
 }
 
+h2 {
+  text-align: center;
+  color: #333;
+  padding: 5px;
+  font-size: 1.2rem;
+  margin: 0;
+  border-right: var(--primary) 5px solid;
+  border-left: var(--primary) 5px solid;
+  border-radius: var(--radius);
+}
+
+.linear-wipe {
+  background: linear-gradient(
+    to right,
+    #7953cd 20%,
+    #00affa 30%,
+    #0190cd 70%,
+    #764ada 80%
+  );
+  background-size: 200% auto;
+  color: #000;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: shine 3s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
 label {
   display: block;
   font-size: 0.9rem;
@@ -132,42 +166,6 @@ button {
 button:hover {
   background-color: var(--primary-dark);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.switcher {
-  display: flex;
-  gap: 0;
-  margin-bottom: 5px;
-}
-
-.switcher button {
-  flex: 1;
-  background-color: white;
-  color: var(--primary);
-  border: 1px solid var(--primary);
-  border-radius: 0;
-  font-weight: bold;
-  transition: var(--transition);
-}
-
-.switcher button:first-child {
-  border-top-right-radius: var(--radius);
-  border-bottom-right-radius: var(--radius);
-}
-
-.switcher button:last-child {
-  border-top-left-radius: var(--radius);
-  border-bottom-left-radius: var(--radius);
-}
-
-.switcher button.active {
-  background-color: var(--primary);
-  color: white;
-}
-
-.switcher button:hover {
-  background-color: var(--primary-dark);
-  color: white;
 }
 
 .add-step,
