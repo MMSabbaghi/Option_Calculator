@@ -1,4 +1,7 @@
-const COMMISSION = 0.00102;
+const COMMISSION = 0.005;
+const EXERCISE_FEE_RATE = 0.001;
+const OPTION_FEE_RATE = 0.004;
+const STOCK_FEE_RATE = 0.0015;
 
 const isValidPrice = (num) => {
   return typeof num === "number" && num > 0;
@@ -22,29 +25,52 @@ const strategies = [
         message = "قیمت اعمال قرارداد باید از قیمت فعلی سهم بالاتر باشد.";
       return { isValid: !!!message, message };
     },
-    caclulateResults: (stockPrice, contracts) => {
-      const { strike, premium } = contracts.callOption;
-      const commission = (stockPrice + premium) * COMMISSION;
+    calculateResults: (stockPrice, contracts) => {
+      const { strike, premium, maturityDate, iv = 0.25 } = contracts.callOption;
 
-      const grossProfit = strike - stockPrice + premium;
-      const grossLoss = stockPrice - premium;
+      const tradeFee =
+        stockPrice * OPTION_FEE_RATE + stockPrice * STOCK_FEE_RATE;
+      const exerciseFee = strike * EXERCISE_FEE_RATE;
 
-      const netProfit = grossProfit - commission;
-      const netLoss = grossLoss + commission;
+      const collateral = stockPrice - premium;
+      const block = collateral + tradeFee;
 
-      const percentageProfit = ((netProfit / stockPrice) * 100).toFixed(2);
-      const percentageLoss = ((netLoss / stockPrice) * 100).toFixed(2);
+      const receive = strike - stockPrice + premium;
+      const profit = receive - tradeFee - exerciseFee;
+
+      const profitPercent = (profit / block) * 100;
+      const zeroProfit = (premium / stockPrice) * 100;
+      const toStrike = ((strike - stockPrice) / stockPrice) * 100;
+
+      const daysUntilMaturity = getDaysUntilMaturity(maturityDate);
+      const probability =
+        (1 - Math.exp(-iv * Math.sqrt(daysUntilMaturity / 365))) * 100;
 
       return [
         {
-          value: `${percentageProfit}٪`,
+          value: profitPercent.toFixed(2),
           lbl: "حداکثر سود",
-          tip: "حداکثر سود زمانی محقق می‌شود که قیمت سهم در سررسید به یا بالاتر برسد. در این صورت اختیار فروش اعمال شده و سود ناشی از دریافت پرمیوم و تفاوت قیمت سررسید با قیمت خرید به دست می‌آید.",
+          tip: "حداکثر سود زمانی محقق می‌شود که قیمت سهم در سررسید به قیمت اعمال یا بالاتر برسد. در این صورت اختیار اعمال شده و سود ناشی از دریافت پرمیوم و تفاوت قیمت سررسید با قیمت خرید به دست می‌آید.",
         },
         {
-          value: `${percentageLoss}٪`,
-          lbl: "حداکثر زیان",
-          tip: `حداکثر زیان زمانی رخ می‌دهد که قیمت سهم به صفر برسد. در این حالت، تنها مبلغ دریافت‌شده به‌عنوان پرمیوم می‌تواند بخشی از زیان را جبران کند.`,
+          value: zeroProfit.toFixed(2),
+          lbl: "فاصله تا سربه‌سری",
+          tip: "درصدی از افت قیمت سهم که با دریافت پرمیوم پوشش داده می‌شود و معامله را به نقطه سر به سری می‌رساند.",
+        },
+        {
+          value: toStrike.toFixed(2),
+          lbl: "فاصله تا قیمت اعمال",
+          tip: "درصد فاصله قیمتی بین قیمت فعلی سهم و قیمت اعمال اختیار.",
+        },
+        {
+          value: probability.toFixed(2),
+          lbl: "احتمال موفقیت",
+          tip: "احتمال اینکه قیمت سهم در سررسید بالاتر از قیمت اعمال باقی بماند بر اساس نوسان ضمنی.",
+        },
+        {
+          value: ((premium / stockPrice) * 100).toFixed(2),
+          lbl: "پوشش سرمایه",
+          tip: "درصدی از قیمت دارایی پایه که با فروش اختیار پوشش داده شده و ریسک را کاهش می‌دهد.",
         },
       ];
     },

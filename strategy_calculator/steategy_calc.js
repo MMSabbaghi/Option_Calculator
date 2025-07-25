@@ -67,7 +67,10 @@ function loadStock() {
 function extractExpiryDate(text) {
   const match = text.match(/\d{4}\/\d{1,2}\/\d{1,2}/);
   if (!match) return null;
-  return match[0].split("/").join("");
+  return match[0]
+    .split("/")
+    .map((s) => s.toString().padStart(2, "0"))
+    .join("");
 }
 
 async function fetchStockData(stock) {
@@ -157,6 +160,7 @@ async function updatePrices() {
     stock.contracts.forEach((contract) => {
       const found = data.find((entry) => entry.id === contract.id);
       contract.premium = found ? found.close : 0;
+      contract.iv = found ? found.iv : 0;
     });
 
     // قیمت سهم اصلی از info API
@@ -319,7 +323,7 @@ function renderCalcResult(results) {
     <div class="result-line">
       <span class="result-label" > ${res.lbl}: </span>
       <div class="result-right">
-        <span>${toPersianDigits(res.value)}</span>
+        <span>${toPersianDigits(res.value)}٪</span>
         <span class="info-icon" id="icon-${index}" onclick="toggleTip('tip-${index}', 'icon-${index}')"><i class="bi bi-info-circle"></i></span>
       </div>
     </div>
@@ -351,6 +355,7 @@ calculateBtn.addEventListener("click", () => {
     const contarct = stock.contracts.find((c) => c.id === select.value);
     inputs[select.dataset.key].strike = contarct.strike;
     inputs[select.dataset.key].expiry = contarct.expiry;
+    inputs[select.dataset.key].iv = contarct.iv;
   });
 
   const { isValid, msg } = validatePremiums(inputs);
@@ -361,7 +366,7 @@ calculateBtn.addEventListener("click", () => {
       inputs
     );
     if (isValid) {
-      const strategyResults = strategy.caclulateResults(stockPrice, inputs);
+      const strategyResults = strategy.calculateResults(stockPrice, inputs);
       renderCalcResult(strategyResults);
     } else {
       showToast(message, "error");

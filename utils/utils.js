@@ -51,3 +51,18 @@ function openModal(id = "modal") {
 function closeModal(id = "modal") {
   document.getElementById(id).classList.remove("active");
 }
+
+// تعداد روز های باقی مانده تا سررسید
+// ورودی به صورت : 14040503
+function getDaysUntilMaturity(jalaliStr) {
+  if (!/^\d{8}$/.test(jalaliStr)) return 0;
+  const year = parseInt(jalaliStr.slice(0, 4), 10);
+  const month = parseInt(jalaliStr.slice(4, 6), 10);
+  const day = parseInt(jalaliStr.slice(6, 8), 10);
+  const { gy, gm, gd } = jalaali.toGregorian(year, month, day);
+  const targetDate = new Date(gy, gm - 1, gd);
+  const today = new Date();
+  const diffTime = targetDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return Math.max(0, diffDays);
+}
