@@ -174,16 +174,6 @@ select {
   font-size: 0.9rem;
 }
 
-.profit {
-  color: var(--primary);
-  direction: ltr;
-}
-
-.loss {
-  color: var(--danger);
-  direction: ltr;
-}
-
 .info-icon {
   font-size: 1rem;
   color: var(--primary-dark);

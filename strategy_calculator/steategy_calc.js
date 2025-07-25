@@ -318,7 +318,7 @@ function renderCalcResult(profit, loss) {
     <div class="result-line">
       <span class="result-label" >حداکثر سود:</span>
       <div class="result-right">
-        <span class="profit">${toPersianDigits(profit.maxProfit)} ٪</span>
+        <span class="val-pos">${toPersianDigits(profit.maxProfit)} ٪</span>
         <span class="info-icon" id="icon1" onclick="toggleTip('tip1', 'icon1')"><i class="bi bi-info-circle"></i></span>
       </div>
     </div>
@@ -326,7 +326,7 @@ function renderCalcResult(profit, loss) {
     <div class="result-line">
       <span class="result-label">حداکثر زیان:</span>
       <div class="result-right">
-        <span class="loss">${toPersianDigits(loss.maxLoss)} ٪</span>
+        <span class="val-neg">${toPersianDigits(loss.maxLoss)} ٪</span>
         <span class="info-icon" id="icon2" onclick="toggleTip('tip2', 'icon2')"><i class="bi bi-info-circle"></i></span>
       </div>
     </div>

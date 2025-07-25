@@ -1,18 +1,4 @@
 const SHEETDB_API = "https://sheetdb.io/api/v1/4xkud7vrc6wtz";
-const months = [
-  "فروردین",
-  "اردیبهشت",
-  "خرداد",
-  "تیر",
-  "مرداد",
-  "شهریور",
-  "مهر",
-  "آبان",
-  "آذر",
-  "دی",
-  "بهمن",
-  "اسفند",
-];
 
 let allTrades = [];
 let filteredData = [];
@@ -94,8 +80,8 @@ function addStep() {
   div.className = "step";
   div.innerHTML = `
     <button class="remove-step" onclick="removeStep(this)"><i class="bi bi-x"></i></button>
-    <div><label>قیمت خرید(ریال):</label><input class="buyPrice" type="text" placeholder="قیمت خرید" data-float="false"></div>
-    <div><label>تعداد قرارداد:</label><input class="buyQty" type="text"  placeholder="تعداد قراردادها" data-float="false"></div>
+    <div><label>قیمت خرید(ریال):</label><input class="buyPrice" type="text" placeholder="قیمت خرید" data-number-input="true" data-float="false"></div>
+    <div><label>تعداد قرارداد:</label><input class="buyQty" type="text"  placeholder="تعداد قراردادها" data-number-input="true" data-float="false"></div>
   `;
   document.getElementById("stepsList").appendChild(div);
 }
@@ -504,7 +490,7 @@ function populate(id) {
     )}</option>`;
   }
 
-  months.forEach((m, i) => {
+  SHAMSI_MONTHS.forEach((m, i) => {
     const selected = i + 1 === currentMonth ? "selected" : "";
     ms.innerHTML += `<option value="${i + 1}"  ${selected}>${m}</option>`;
   });
