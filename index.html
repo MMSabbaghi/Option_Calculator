@@ -35,11 +35,12 @@
           <div class="step">
             <div>
               <label>قیمت خرید(ریال):</label>
-              <input class="buyPrice" type="text" placeholder="قیمت خرید">
+              <input data-number-input="true" data-float="false" class="buyPrice" type="text" placeholder="قیمت خرید">
             </div>
             <div>
               <label>تعداد قرارداد:</label>
-              <input class="buyQty" type="text" placeholder="تعداد قراردادها">
+              <input data-number-input="true" data-float="false" class="buyQty" type="text"
+                placeholder="تعداد قراردادها">
             </div>
           </div>
         </div>
@@ -48,7 +49,7 @@
         </button>
         <div>
           <label> قیمت فروش(ریال):</label>
-          <input id="sellPrice" type="text" placeholder="قیمت فروش">
+          <input id="sellPrice" data-number-input="true" data-float="false" type="text" placeholder="قیمت فروش">
         </div>
         <div class="action-btns">
           <button id="profitBtn">
@@ -145,19 +146,20 @@
         <div id="settingsForm">
           <div>
             <label>حد سود (٪):</label>
-            <input id="profitPercent" oninput="toPersianInput(this)" type="text" placeholder="تارگت حد سود">
+            <input data-number-input="true" id="profitPercent" type="text" placeholder="تارگت حد سود">
           </div>
           <div>
             <label>حد ضرر (٪):</label>
-            <input id="lossPercent" oninput="toPersianInput(this)" type="text" placeholder="تارگت حد ضرر">
+            <input data-number-input="true" id="lossPercent" type="text" placeholder="تارگت حد ضرر">
           </div>
           <div>
             <label>اندازه قرادادها:</label>
-            <input id="contractSize" oninput="toPersianInput(this)" type="text" placeholder="اندازه هر قرارداد">
+            <input data-number-input="true" id="contractSize" data-float="false" type="text"
+              placeholder="اندازه هر قرارداد">
           </div>
           <div>
-            <label>:کارمزد معاملات</label>
-            <input id="fee" type="text" oninput="toPersianFloatInput(this)" placeholder="کارمزد معاملات">
+            <label>کارمزد معاملات :</label>
+            <input data-number-input="true" id="fee" type="text" placeholder="کارمزد معاملات">
           </div>
         </div>
         <button id="saveSettingsBtn" style="margin-top: 8px;">
@@ -168,6 +170,7 @@
 
   </div>
 
+  <script src="./utils/persian-inputs.js"></script>
   <script src="./utils/alert.js"></script>
   <script src="./utils/confirm.js"></script>
   <script src="./utils/jalaali.min.js"></script>

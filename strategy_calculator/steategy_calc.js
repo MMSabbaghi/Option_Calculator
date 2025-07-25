@@ -54,7 +54,7 @@ function populateSelect() {
 
 function loadStock() {
   const stock = getCurrentStock();
-  stockPriceInput.value = toPersianDigits(stock.price) || "---";
+  stockPriceInput.value = stock.price || "---";
 
   if (stock.contracts.length > 0) {
     updatePrices();
@@ -165,7 +165,7 @@ async function updatePrices() {
     const dataInfo = await resInfo.json();
     if (dataInfo && dataInfo.cl) {
       stock.price = parseFloat(dataInfo.cl);
-      stockPriceInput.value = toPersianDigits(stock.price);
+      stockPriceInput.value = stock.price;
     }
 
     saveData();
@@ -269,9 +269,9 @@ function renderForm() {
           <label>پرمیوم ${
             input.position === "long" ? "پرداختی" : "دریافتی"
           } : </label>
-          <input class="premiumInput" oninput="toPersianInput(this)" data-key="${
+          <input class="premiumInput" data-number-input="true" data-float="false" type="text" data-key="${
             input.key
-          }" value="${toPersianDigits(contracts[0].premium)}">
+          }" value="${contracts[0].premium}">
         </div>
       </div>
     `;
@@ -290,7 +290,7 @@ function renderForm() {
       );
       const selected = contracts.find((c) => c.id === this.value);
       document.querySelector(`.premiumInput[data-key="${key}"]`).value =
-        toPersianDigits(selected.premium);
+        selected.premium;
     };
   });
 }
@@ -341,11 +341,11 @@ calculateBtn.addEventListener("click", () => {
   const strategy = getCurrentStrategy();
   if (!stock || !strategy) return;
 
-  const stockPrice = +fromPersianDigits(stockPriceInput.value);
+  const stockPrice = +stockPriceInput.value;
 
   const inputs = {};
   document.querySelectorAll(".premiumInput").forEach((input) => {
-    inputs[input.dataset.key] = { premium: +fromPersianDigits(input.value) };
+    inputs[input.dataset.key] = { premium: +input.value };
   });
 
   document.querySelectorAll(".contractSelect").forEach((select) => {

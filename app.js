@@ -35,10 +35,10 @@ const DEFAULT_SETTINGS = {
 function loadSettings() {
   settings =
     JSON.parse(localStorage.getItem("trade_settings")) || DEFAULT_SETTINGS;
-  profitPercentEl.value = toPersianDigits(settings.profitPercent);
-  lossPercentEl.value = toPersianDigits(settings.lossPercent);
-  contractSizeEl.value = toPersianDigits(settings.contractSize);
-  feeEl.value = toPersianDigits(settings.fee);
+  profitPercentEl.value = settings.profitPercent;
+  lossPercentEl.value = settings.lossPercent;
+  contractSizeEl.value = settings.contractSize;
+  feeEl.value = settings.fee;
 }
 loadSettings();
 
@@ -60,10 +60,10 @@ function validateSettings({ profitPercent, lossPercent, contractSize, fee }) {
 
 saveSettingsBtn.addEventListener("click", () => {
   const newSettings = {
-    profitPercent: +fromPersianDigits(profitPercentEl.value),
-    lossPercent: +fromPersianDigits(lossPercentEl.value),
-    contractSize: +fromPersianDigits(contractSizeEl.value),
-    fee: +fromPersianDigits(feeEl.value),
+    profitPercent: +profitPercentEl.value,
+    lossPercent: +lossPercentEl.value,
+    contractSize: +contractSizeEl.value,
+    fee: +feeEl.value,
   };
 
   const { isValid, msg } = validateSettings(newSettings);
@@ -80,11 +80,6 @@ saveSettingsBtn.addEventListener("click", () => {
 
 /////////
 
-// جلوگیری از وارد کردن غیر عدد
-document.querySelectorAll(".container input[type='text']").forEach((input) => {
-  input.addEventListener("input", () => toPersianInput(input));
-});
-
 const createResultRow = ({ lbl, val }) => {
   return `    
   <div class="result-row">
@@ -99,8 +94,8 @@ function addStep() {
   div.className = "step";
   div.innerHTML = `
     <button class="remove-step" onclick="removeStep(this)"><i class="bi bi-x"></i></button>
-    <div><label>قیمت خرید(ریال):</label><input class="buyPrice" type="text" placeholder="قیمت خرید" oninput="toPersianInput(this)"></div>
-    <div><label>تعداد قرارداد:</label><input class="buyQty" type="text"  placeholder="تعداد قراردادها" oninput="toPersianInput(this)"></div>
+    <div><label>قیمت خرید(ریال):</label><input class="buyPrice" type="text" placeholder="قیمت خرید" data-float="false"></div>
+    <div><label>تعداد قرارداد:</label><input class="buyQty" type="text"  placeholder="تعداد قراردادها" data-float="false"></div>
   `;
   document.getElementById("stepsList").appendChild(div);
 }
@@ -198,15 +193,13 @@ const isValidTrade = ({ steps, sellPriceVal }) => {
 };
 
 const getTradeFormData = () => {
-  const sellPriceVal = +fromPersianDigits(
-    document.getElementById("sellPrice").value
-  );
+  const sellPriceVal = +document.getElementById("sellPrice").value;
   const stepEls = document.querySelectorAll(".step");
   const steps = [];
 
   stepEls.forEach((el) => {
-    const price = +fromPersianDigits(el.querySelector(".buyPrice").value);
-    const qty = +fromPersianDigits(el.querySelector(".buyQty").value);
+    const price = +el.querySelector(".buyPrice").value;
+    const qty = +el.querySelector(".buyQty").value;
     steps.push({
       id: crypto.randomUUID(),
       price,
