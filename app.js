@@ -584,7 +584,8 @@ function applyFilters() {
     const dOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
     const dateMatch = (!from || dOnly >= from) && (!to || dOnly <= to);
-    const nameMatch = !query || item.instrument.includes(query);
+    const nameMatch =
+      !query || item.instrument.includes(toPersianDigits(query));
 
     if (isDateFilterActive) return dateMatch && nameMatch;
     else return nameMatch;
