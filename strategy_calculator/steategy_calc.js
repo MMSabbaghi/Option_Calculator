@@ -312,25 +312,24 @@ function toggleTip(tipId, iconId) {
   icon.classList.toggle("active");
 }
 
-function renderCalcResult(profit, loss) {
+function renderCalcResult(results) {
+  const resultElemnts = results
+    .map(
+      (res, index) => `
+    <div class="result-line">
+      <span class="result-label" > ${res.lbl}: </span>
+      <div class="result-right">
+        <span>${toPersianDigits(res.value)}</span>
+        <span class="info-icon" id="icon-${index}" onclick="toggleTip('tip-${index}', 'icon-${index}')"><i class="bi bi-info-circle"></i></span>
+      </div>
+    </div>
+    <div class="tip" id="tip-${index}">${res.tip}</div>
+  `
+    )
+    .join("");
   resultBox.innerHTML = `
   <div class="strategy-card">
-    <div class="result-line">
-      <span class="result-label" >حداکثر سود:</span>
-      <div class="result-right">
-        <span class="val-pos">${toPersianDigits(profit.maxProfit)} ٪</span>
-        <span class="info-icon" id="icon1" onclick="toggleTip('tip1', 'icon1')"><i class="bi bi-info-circle"></i></span>
-      </div>
-    </div>
-    <div class="tip" id="tip1">${profit.tip}</div>
-    <div class="result-line">
-      <span class="result-label">حداکثر زیان:</span>
-      <div class="result-right">
-        <span class="val-neg">${toPersianDigits(loss.maxLoss)} ٪</span>
-        <span class="info-icon" id="icon2" onclick="toggleTip('tip2', 'icon2')"><i class="bi bi-info-circle"></i></span>
-      </div>
-    </div>
-    <div class="tip" id="tip2">${loss.tip}</div>
+     ${resultElemnts}
   </div>
         `;
   resultBox.scrollIntoView({ behavior: "smooth" });
@@ -362,9 +361,8 @@ calculateBtn.addEventListener("click", () => {
       inputs
     );
     if (isValid) {
-      const profit = strategy.getMaxProfit(stockPrice, inputs);
-      const loss = strategy.getMaxLoss(stockPrice, inputs);
-      renderCalcResult(profit, loss);
+      const strategyResults = strategy.caclulateResults(stockPrice, inputs);
+      renderCalcResult(strategyResults);
     } else {
       showToast(message, "error");
     }
