@@ -1,7 +1,7 @@
 const COMMISSION = 0.005;
 const EXERCISE_FEE_RATE = 0.001;
 const OPTION_FEE_RATE = 0.004;
-const STOCK_FEE_RATE = 0.0015;
+const STOCK_FEE_RATE = 0.005;
 
 const isValidPrice = (num) => {
   return typeof num === "number" && num > 0;
@@ -77,53 +77,67 @@ const strategies = [
     },
     inputs: [{ type: "call", position: "short", key: "callOption" }],
   },
-  // {
-  //   name: "conversion",
-  //   displayName: "کانورژن",
-  //   tips: ["قراردادها باید دارای سررسید و قیمت اعمال یکسان باشند."],
-  //   learnHref:
-  //     "https://optionbaaz.ir/article/73/%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%DA%98%DB%8C-%DA%A9%D8%A7%D9%86%D9%88%D8%B1%DA%98%D9%86-Conversion-%D8%A7%D8%AE%D8%AA%DB%8C%D8%A7%D8%B1-%D9%85%D8%B9%D8%A7%D9%85%D9%84%D9%87",
+  {
+    name: "conversion",
+    displayName: "کانورژن",
+    tips: ["قراردادها باید دارای سررسید و قیمت اعمال یکسان باشند."],
+    learnHref:
+      "https://optionbaaz.ir/article/73/%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%DA%98%DB%8C-%DA%A9%D8%A7%D9%86%D9%88%D8%B1%DA%98%D9%86-Conversion-%D8%A7%D8%AE%D8%AA%DB%8C%D8%A7%D8%B1-%D9%85%D8%B9%D8%A7%D9%85%D9%84%D9%87",
 
-  //   validateStrategyInputs: (stockPrice, contracts) => {
-  //     const { callOption, putOption } = contracts;
-  //     let message = null;
+    validateStrategyInputs: (stockPrice, contracts) => {
+      const { callOption, putOption } = contracts;
+      let message = null;
 
-  //     if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
-  //     else if (callOption.strike !== putOption.strike)
-  //       message = "قیمت اعمال قراردادها باید یکسان باشد.";
-  //     else if (callOption.expiry !== putOption.expiry)
-  //       message = "تاریخ سررسیدقرارداد ها باید یکسان باشد.";
+      if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
+      else if (callOption.strike !== putOption.strike)
+        message = "قیمت اعمال قراردادها باید یکسان باشد.";
+      else if (callOption.expiry !== putOption.expiry)
+        message = "تاریخ سررسیدقرارداد ها باید یکسان باشد.";
 
-  //     return { isValid: !!!message, message };
-  //   },
+      return { isValid: !!!message, message };
+    },
+    calculateResults: (stockPrice, contracts) => {
+      const { callOption, putOption } = contracts;
+      const strikePrice = callOption.strike;
+      // قیمت‌های اختیارها
+      const callPrice = callOption.premium;
+      const putPrice = putOption.premium;
 
-  //   getMaxProfit: (stockPrice, contracts) => {
-  //     const { premium: callPremium } = contracts.callOption;
-  //     const { premium: putPremium } = contracts.putOption;
-  //     const grossProfit = callPremium - putPremium;
-  //     const commission =
-  //       (callPremium + putPremium + stockPrice) * COMMISSION * 2;
-  //     const netProfit = grossProfit - commission;
-  //     const percentageProfit = ((netProfit / stockPrice) * 100).toFixed(2);
+      // سود ناخالص: تفاوت پرمیوم‌ها و تفاوت قیمت اعمال تا سهم
+      const grossProfit = strikePrice - stockPrice + (callPrice - putPrice);
 
-  //     return {
-  //       maxProfit: percentageProfit,
-  //       tip: "این سود بدون ریسک زمانی حاصل می‌شود که اختلاف پرمیوم دریافتی از فروش اختیار خرید و پرداختی بابت اختیار فروش، پس از کسر کارمزد، مثبت باشد. سود به صورت تضمینی از تفاوت پرمیوم‌ها تأمین می‌شود.",
-  //     };
-  //   },
+      // کارمزدها
+      const optionFees = (callPrice + putPrice) * OPTION_FEE_RATE;
+      const stockFee = stockPrice * STOCK_FEE_RATE;
+      const exerciseFee =
+        stockPrice > strikePrice || stockPrice < strikePrice
+          ? strikePrice * EXERCISE_FEE_RATE
+          : 0;
 
-  //   getMaxLoss: () => {
-  //     return {
-  //       maxLoss: 0,
-  //       tip: "در این استراتژی (کانورژن) ریسک وجود ندارد، زیرا سود بدون ریسک از اختلاف پرمیوم‌ها بدست می‌آید و سهم خنثی است.",
-  //     };
-  //   },
+      const totalFees = optionFees + stockFee + exerciseFee;
 
-  //   inputs: [
-  //     { type: "call", position: "short", key: "callOption" },
-  //     { type: "put", position: "long", key: "putOption" },
-  //   ],
-  // },
+      // سود خالص
+      const netProfit = grossProfit - totalFees;
+
+      // سرمایه مورد نیاز
+      const capital = stockPrice + (putPrice - callPrice);
+
+      // بازده نهایی به درصد
+      const totalReturn = ((netProfit / capital) * 100).toFixed(2);
+
+      return [
+        {
+          value: totalReturn,
+          lbl: "سود خالص",
+          tip: "سود نهایی پس از کسر تمام کارمزدها (معامله، اعمال، سهم پایه) محاسبه شده است.",
+        },
+      ];
+    },
+    inputs: [
+      { type: "call", position: "short", key: "callOption" },
+      { type: "put", position: "long", key: "putOption" },
+    ],
+  },
   // {
   //   name: "collar",
   //   displayName: "کولار",
