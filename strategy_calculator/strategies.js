@@ -26,7 +26,7 @@ const strategies = [
       return { isValid: !!!message, message };
     },
     calculateResults: (stockPrice, contracts) => {
-      const { strike, premium, maturityDate, iv = 0.25 } = contracts.callOption;
+      const { strike, premium, expiry } = contracts.callOption;
 
       const tradeFee =
         stockPrice * OPTION_FEE_RATE + stockPrice * STOCK_FEE_RATE;
@@ -39,10 +39,16 @@ const strategies = [
       const profit = receive - tradeFee - exerciseFee;
 
       const profitPercent = (profit / block) * 100;
-      const zeroProfit = (premium / stockPrice) * 100;
       const toStrike = ((strike - stockPrice) / stockPrice) * 100;
 
-      const daysUntilMaturity = getDaysUntilMaturity(maturityDate);
+      const daysUntilMaturity = getDaysUntilMaturity(expiry.toString());
+      const iv = impliedVolatility(
+        premium,
+        stockPrice,
+        strike,
+        daysUntilMaturity
+      );
+
       const probability =
         (1 - Math.exp(-iv * Math.sqrt(daysUntilMaturity / 365))) * 100;
 
@@ -51,11 +57,6 @@ const strategies = [
           value: profitPercent.toFixed(2),
           lbl: "حداکثر سود",
           tip: "حداکثر سود زمانی محقق می‌شود که قیمت سهم در سررسید به قیمت اعمال یا بالاتر برسد. در این صورت اختیار اعمال شده و سود ناشی از دریافت پرمیوم و تفاوت قیمت سررسید با قیمت خرید به دست می‌آید.",
-        },
-        {
-          value: zeroProfit.toFixed(2),
-          lbl: "فاصله تا سربه‌سری",
-          tip: "درصدی از افت قیمت سهم که با دریافت پرمیوم پوشش داده می‌شود و معامله را به نقطه سر به سری می‌رساند.",
         },
         {
           value: toStrike.toFixed(2),

@@ -66,3 +66,56 @@ function getDaysUntilMaturity(jalaliStr) {
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   return Math.max(0, diffDays);
 }
+
+function erf(x) {
+  const sign = x >= 0 ? 1 : -1;
+  const a1 = 0.254829592,
+    a2 = -0.284496736,
+    a3 = 1.421413741;
+  const a4 = -1.453152027,
+    a5 = 1.061405429,
+    p = 0.3275911;
+  const t = 1 / (1 + p * Math.abs(x));
+  const y =
+    1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+  return sign * y;
+}
+
+function blackScholesPrice(S, K, T, sigma, r = 0.1, isCall = true) {
+  const d1 =
+    (Math.log(S / K) + (r + (sigma * sigma) / 2) * T) / (sigma * Math.sqrt(T));
+  const d2 = d1 - sigma * Math.sqrt(T);
+  const cdf = (x) => (1 + erf(x / Math.sqrt(2))) / 2;
+
+  if (isCall) {
+    return S * cdf(d1) - K * Math.exp(-r * T) * cdf(d2);
+  } else {
+    return K * Math.exp(-r * T) * cdf(-d2) - S * cdf(-d1);
+  }
+}
+
+function impliedVolatility(
+  optionPrice,
+  stockPrice,
+  strikePrice,
+  daysUntilMaturity,
+  r = 0.4,
+  isCall = true
+) {
+  const T = daysUntilMaturity / 365;
+  let low = 0.0001,
+    high = 5,
+    mid;
+  const tolerance = 1e-5;
+
+  for (let i = 0; i < 100; i++) {
+    mid = (low + high) / 2;
+    const price = blackScholesPrice(stockPrice, strikePrice, T, mid, r, isCall);
+    const diff = price - optionPrice;
+
+    if (Math.abs(diff) < tolerance) return mid;
+    if (diff > 0) high = mid;
+    else low = mid;
+  }
+  return mid; // best estimate
+}
