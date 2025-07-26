@@ -119,3 +119,7 @@ function impliedVolatility(
   }
   return mid; // best estimate
 }
+
+function MP(profitPercent, days) {
+  return +((profitPercent * 30) / days).toFixed(2);
+}

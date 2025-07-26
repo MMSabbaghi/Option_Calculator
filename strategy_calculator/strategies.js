@@ -138,68 +138,85 @@ const strategies = [
       { type: "put", position: "long", key: "putOption" },
     ],
   },
-  // {
-  //   name: "collar",
-  //   displayName: "کولار",
-  //   tips: [
-  //     "با فروش اختیار خرید (Call) درآمد کسب می‌کنید و با خرید اختیار فروش (Put) از زیان احتمالی جلوگیری می‌شود.",
-  //     "قراردادها دارای سررسید یکسان و قیمت اعمال متفاوت هستند.",
-  //   ],
-  //   learnHref:
-  //     "https://optionbaaz.ir/article/141/%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%DA%98%DB%8C-%DA%A9%D9%88%D9%84%D8%A7%D8%B1-collar",
-  //   validateStrategyInputs: (stockPrice, contracts) => {
-  //     const { callOption, putOption } = contracts;
-  //     let message = null;
+  {
+    name: "collar",
+    displayName: "کولار",
+    tips: [
+      "با فروش اختیار خرید (Call) درآمد کسب می‌کنید و با خرید اختیار فروش (Put) از زیان احتمالی جلوگیری می‌شود.",
+      "قراردادها دارای سررسید یکسان و قیمت اعمال متفاوت هستند.",
+    ],
+    learnHref:
+      "https://optionbaaz.ir/article/141/%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%DA%98%DB%8C-%DA%A9%D9%88%D9%84%D8%A7%D8%B1-collar",
+    validateStrategyInputs: (stockPrice, contracts) => {
+      const { callOption, putOption } = contracts;
+      let message = null;
 
-  //     if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
-  //     else if (callOption.strike <= stockPrice)
-  //       message = "قیمت اعمال اختیار خرید باید بالاتر از قیمت سهم باشد.";
-  //     else if (putOption.strike >= stockPrice)
-  //       message = "قیمت اعمال اختیار فروش باید پایین‌تر از قیمت سهم باشد.";
-  //     else if (callOption.expiry !== putOption.expiry)
-  //       message = "تاریخ سررسید قرارداد ها باید یکسان باشد.";
+      if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
+      else if (callOption.strike <= stockPrice)
+        message = "قیمت اعمال اختیار خرید باید بالاتر از قیمت سهم باشد.";
+      else if (putOption.strike >= stockPrice)
+        message = "قیمت اعمال اختیار فروش باید پایین‌تر از قیمت سهم باشد.";
+      else if (callOption.expiry !== putOption.expiry)
+        message = "تاریخ سررسید قرارداد ها باید یکسان باشد.";
 
-  //     return { isValid: !!!message, message };
-  //   },
-  //   getMaxProfit: (stockPrice, contracts) => {
-  //     const { strike: callStrike, premium: callPremium } = contracts.callOption;
-  //     const { premium: putPremium } = contracts.putOption;
+      return { isValid: !!!message, message };
+    },
+    calculateResults: (stockPrice, contracts) => {
+      const { callOption, putOption } = contracts;
+      const {
+        strike: callStrike,
+        premium: callPremium,
+        expiry: maturityDate,
+      } = callOption;
+      const { strike: putStrike, premium: putPremium } = putOption;
 
-  //     const grossProfit = callStrike - stockPrice + (callPremium - putPremium);
-  //     const commission =
-  //       (callPremium + putPremium + stockPrice) * COMMISSION * 2;
+      const tradeFee =
+        callPremium * OPTION_FEE_RATE +
+        putPremium * OPTION_FEE_RATE +
+        stockPrice * STOCK_FEE_RATE;
+      const exerciseFee = (callStrike + putStrike) * EXERCISE_FEE_RATE;
+      const commission = COMMISSION * (stockPrice + callPremium + putPremium);
+      const totalFee = tradeFee + exerciseFee + commission;
 
-  //     const netProfit = grossProfit - commission;
-  //     const percentageProfit = ((netProfit / stockPrice) * 100).toFixed(2);
+      const capital = stockPrice + putPremium - callPremium + totalFee;
+      const maxProfit = callStrike - capital;
+      const maxLoss = putStrike - capital;
 
-  //     return {
-  //       maxProfit: percentageProfit,
-  //       tip: "حداکثر سود زمانی محقق می‌شود که قیمت سهم در سررسید به بالاتر از قیمت اعمال اختیار خرید برسد و سهم به قیمت تعیین‌شده فروخته شود. در این حالت، سود ناشی از رشد سهم تا قیمت اعمال، به‌علاوه درآمد حاصل از فروش اختیار خرید، منهای هزینه خرید اختیار فروش و کارمزدها خواهد بود.",
-  //     };
-  //   },
+      const maxProfitPercent = ((maxProfit / capital) * 100).toFixed(2);
+      const maxLossPercent = ((maxLoss / capital) * 100).toFixed(2);
+      const rewardRisk = Math.abs(maxProfit / Math.abs(maxLoss)).toFixed(2);
 
-  //   getMaxLoss: (stockPrice, contracts) => {
-  //     const { strike: putStrike, premium: putPremium } = contracts.putOption;
-  //     const { premium: callPremium } = contracts.callOption;
+      const daysUntilMaturity = getDaysUntilMaturity(maturityDate.toString());
+      const monthlyReturn = MP(parseFloat(maxProfitPercent), daysUntilMaturity);
 
-  //     const grossLoss = stockPrice - putStrike + (putPremium - callPremium);
-  //     const commission =
-  //       (callPremium + putPremium + stockPrice) * COMMISSION * 2;
-
-  //     const netLoss = grossLoss + commission;
-  //     const percentageLoss = ((netLoss / stockPrice) * 100).toFixed(2);
-
-  //     return {
-  //       maxLoss: percentageLoss,
-  //       tip: "حداکثر زیان زمانی رخ می‌دهد که قیمت سهم در سررسید به پایین‌تر از قیمت اعمال اختیار فروش برسد. در این حالت، زیان کاهش قیمت سهم، با اعمال اختیار فروش محدود می‌شود و هزینه پرمیوم‌ها و کارمزدها به آن اضافه می‌شود.",
-  //     };
-  //   },
-
-  //   inputs: [
-  //     { type: "call", position: "short", key: "callOption" },
-  //     { type: "put", position: "long", key: "putOption" },
-  //   ],
-  // },
+      return [
+        {
+          value: maxProfitPercent,
+          lbl: "حداکثر سود",
+          tip: `اگر قیمت سهم در سررسید بالاتر از ${callStrike} باشد، بیشترین سود محقق می‌شود.`,
+        },
+        {
+          value: maxLossPercent,
+          lbl: "حداکثر زیان",
+          tip: `اگر قیمت سهم در سررسید پایین‌تر از ${putStrike} باشد، بیشترین زیان متوجه سرمایه‌گذار خواهد شد.`,
+        },
+        {
+          value: rewardRisk,
+          lbl: "نسبت سود به زیان",
+          tip: "نسبت بین بیشترین سود ممکن به بیشترین زیان ممکن در استراتژی",
+        },
+        {
+          value: monthlyReturn.toFixed(2),
+          lbl: "سود ماهیانه",
+          tip: "بازدهی ماهیانه با در نظر گرفتن سود نهایی و روزهای باقی‌مانده تا سررسید",
+        },
+      ];
+    },
+    inputs: [
+      { type: "call", position: "short", key: "callOption" },
+      { type: "put", position: "long", key: "putOption" },
+    ],
+  },
   // {
   //   name: "bullCallSpread",
   //   displayName: "کال اسپرد صعودی",
