@@ -204,6 +204,7 @@ const strategies = [
           value: rewardRisk,
           lbl: "نسبت سود به زیان",
           tip: "نسبت بین بیشترین سود ممکن به بیشترین زیان ممکن در استراتژی",
+          noPercent: true,
         },
         {
           value: monthlyReturn.toFixed(2),

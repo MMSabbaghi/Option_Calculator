@@ -323,7 +323,9 @@ function renderCalcResult(results) {
     <div class="result-line">
       <span class="result-label" > ${res.lbl}: </span>
       <div class="result-right">
-        <span class="number">${toPersianDigits(res.value)}٪</span>
+        <span class="number">${toPersianDigits(res.value)} ${
+        res.noPercent ? "" : "٪"
+      } </span>
         <span class="info-icon" id="icon-${index}" onclick="toggleTip('tip-${index}', 'icon-${index}')"><i class="bi bi-info-circle"></i></span>
       </div>
     </div>
