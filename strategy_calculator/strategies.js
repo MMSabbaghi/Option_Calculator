@@ -193,12 +193,16 @@ const strategies = [
         {
           value: maxProfitPercent,
           lbl: "حداکثر سود",
-          tip: `اگر قیمت سهم در سررسید بالاتر از ${callStrike} باشد، بیشترین سود محقق می‌شود.`,
+          tip: `اگر قیمت سهم در سررسید بالاتر از ${toPersianDigits(
+            callStrike
+          )} باشد، بیشترین سود محقق می‌شود.`,
         },
         {
           value: maxLossPercent,
           lbl: "حداکثر زیان",
-          tip: `اگر قیمت سهم در سررسید پایین‌تر از ${putStrike} باشد، بیشترین زیان متوجه سرمایه‌گذار خواهد شد.`,
+          tip: `اگر قیمت سهم در سررسید پایین‌تر از ${toPersianDigits(
+            putStrike
+          )} باشد، بیشترین زیان متوجه سرمایه‌گذار خواهد شد.`,
         },
         {
           value: rewardRisk,
