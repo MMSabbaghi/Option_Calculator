@@ -287,70 +287,93 @@ const strategies = [
   //     { type: "call", position: "short", key: "callShort" },
   //   ],
   // },
-  // {
-  //   name: "bearPutSpread",
-  //   displayName: "پوت اسپرد نزولی",
-  //   tips: [
-  //     "در این استراتژی با خرید یک Put و فروش یک Put دیگر با قیمت اعمال پایین‌تر، روی افت محدود قیمت سهم شرط‌بندی می‌کنید.",
-  //     "حداکثر سود و زیان هر دو محدود و قابل محاسبه هستند.",
-  //   ],
-  //   learnHref:
-  //     "https://optionbaaz.ir/article/123/%D9%BE%D9%88%D8%AA-%D8%A7%D8%B3%D9%BE%D8%B1%D8%AF-%D9%86%D8%B2%D9%88%D9%84%DB%8C-Bear-put-spread",
-  //   validateStrategyInputs: (stockPrice, contracts) => {
-  //     const { putLong, putShort } = contracts;
-  //     let message = null;
-  //     if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
-  //     else if (putLong.expiry !== putShort.expiry)
-  //       message = "تاریخ سررسید قرارداد ها باید یکسان باشد.";
-  //     else if (putLong.strike <= putShort.strike)
-  //       message = "قیمت اعمال قرارداد فروخته شده باید پایین تر باشد.";
+  {
+    name: "bearPutSpread",
+    displayName: "پوت اسپرد نزولی",
+    tips: [
+      "در این استراتژی با خرید یک Put و فروش یک Put دیگر با قیمت اعمال پایین‌تر، روی افت محدود قیمت سهم تحلیل می‌کنید.",
+      "حداکثر سود و زیان هر دو محدود و قابل محاسبه هستند.",
+    ],
+    learnHref:
+      "https://optionbaaz.ir/article/123/%D9%BE%D9%88%D8%AA-%D8%A7%D8%B3%D9%BE%D8%B1%D8%AF-%D9%86%D8%B2%D9%88%D9%84%DB%8C-Bear-put-spread",
+    validateStrategyInputs: (stockPrice, contracts) => {
+      const { putLong, putShort } = contracts;
+      let message = null;
+      if (!isValidPrice(stockPrice)) message = "قیمت سهم نامعتبر است.";
+      else if (putLong.expiry !== putShort.expiry)
+        message = "تاریخ سررسید قرارداد ها باید یکسان باشد.";
+      else if (putLong.strike <= putShort.strike)
+        message = "قیمت اعمال قرارداد فروخته شده باید پایین تر باشد.";
 
-  //     return { isValid: !!!message, message };
-  //   },
-  //   getMaxProfit: (stockPrice, contracts) => {
-  //     const { strike: putLongStrike, premium: putLongPremium } =
-  //       contracts.putLong;
-  //     const { strike: putShortStrike, premium: putShortPremium } =
-  //       contracts.putShort;
+      return { isValid: !!!message, message };
+    },
 
-  //     const spreadWidth = putLongStrike - putShortStrike;
-  //     const netPremium = putLongPremium - putShortPremium;
+    calculateResults: (stockPrice, contracts) => {
+      const { putLong, putShort } = contracts;
+      const { strike: longStrike, premium: longPremium, expiry } = putLong;
+      const { strike: shortStrike, premium: shortPremium } = putShort;
 
-  //     const grossProfit = spreadWidth - netPremium;
-  //     const commission =
-  //       (putLongPremium + putShortPremium + stockPrice) * COMMISSION * 2;
+      // کارمزدها
+      const tradeFee =
+        (longPremium + shortPremium) * OPTION_FEE_RATE +
+        stockPrice * STOCK_FEE_RATE;
 
-  //     const netProfit = grossProfit - commission;
-  //     const percentageProfit = ((netProfit / stockPrice) * 100).toFixed(2);
+      const exerciseFee = (longStrike + shortStrike) * EXERCISE_FEE_RATE;
 
-  //     return {
-  //       maxProfit: percentageProfit,
-  //       tip: "حداکثر سود زمانی محقق می‌شود که قیمت سهم در سررسید به زیر قیمت اعمال اختیار فروش خریداری‌شده برسد و اسپرد به طور کامل فعال شود.",
-  //     };
-  //   },
+      const commission = COMMISSION * (stockPrice + longPremium + shortPremium);
 
-  //   getMaxLoss: (stockPrice, contracts) => {
-  //     const { premium: putLongPremium } = contracts.putLong;
-  //     const { premium: putShortPremium } = contracts.putShort;
+      const totalFee = tradeFee + exerciseFee + commission;
 
-  //     const netPremium = putLongPremium - putShortPremium;
-  //     const commission =
-  //       (putLongPremium + putShortPremium + stockPrice) * COMMISSION * 2;
+      // سرمایه مورد نیاز
+      const capital = longPremium - shortPremium + totalFee;
 
-  //     const netLoss = netPremium + commission;
-  //     const percentageLoss = ((netLoss / stockPrice) * 100).toFixed(2);
+      // بیشترین سود = تفاوت استرایک‌ها - هزینه استراتژی
+      const maxProfit = longStrike - shortStrike - capital;
 
-  //     return {
-  //       maxLoss: percentageLoss,
-  //       tip: "حداکثر زیان زمانی رخ می‌دهد که قیمت سهم در سررسید بالاتر از قیمت اعمال اختیار فروش فروخته‌شده باقی بماند و هر دو آپشن بی‌ارزش منقضی شوند.",
-  //     };
-  //   },
+      // بیشترین زیان = سرمایه وارد شده
+      const maxLoss = capital;
 
-  //   inputs: [
-  //     { type: "put", position: "long", key: "putLong" },
-  //     { type: "put", position: "short", key: "putShort" },
-  //   ],
-  // },
+      const maxProfitPercent = ((maxProfit / capital) * 100).toFixed(2);
+      const maxLossPercent = ((-maxLoss / capital) * 100).toFixed(2);
+      const rewardRisk = Math.abs(maxProfit / maxLoss).toFixed(2);
+
+      const daysUntilMaturity = getDaysUntilMaturity(expiry.toString());
+      const monthlyReturn = MP(parseFloat(maxProfitPercent), daysUntilMaturity);
+
+      return [
+        {
+          value: maxProfitPercent,
+          lbl: "حداکثر سود",
+          tip: `اگر قیمت سهم در سررسید پایین‌تر از ${toPersianDigits(
+            shortStrike
+          )} باشد، بیشترین سود محقق می‌شود.`,
+        },
+        {
+          value: maxLossPercent,
+          lbl: "حداکثر زیان",
+          tip: `اگر قیمت سهم در سررسید بالاتر از ${toPersianDigits(
+            longStrike
+          )} باشد، بیشترین زیان متوجه سرمایه‌گذار خواهد شد.`,
+        },
+        {
+          value: rewardRisk,
+          lbl: "نسبت سود به زیان",
+          tip: "نسبت بین بیشترین سود ممکن به بیشترین زیان ممکن در استراتژی",
+          noPercent: true,
+        },
+        {
+          value: monthlyReturn.toFixed(2),
+          lbl: "سود ماهیانه",
+          tip: "بازدهی ماهیانه با در نظر گرفتن سود نهایی و روزهای باقی‌مانده تا سررسید",
+        },
+      ];
+    },
+
+    inputs: [
+      { type: "put", position: "long", key: "putLong" },
+      { type: "put", position: "short", key: "putShort" },
+    ],
+  },
   // {
   //   name: "longStraddle",
   //   displayName: "استرادل",
