@@ -200,7 +200,7 @@ const getTradeFormData = () => {
 };
 
 const emptyForm = () => {
-  document.getElementById("sellPrice").value = null;
+  document.getElementById("sellPrice").value = 0;
   const rBox = document.getElementById("profitResult");
   rBox.style.display = "none";
   document.getElementById("stepsList").innerHTML = `
