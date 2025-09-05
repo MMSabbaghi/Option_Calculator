@@ -13,6 +13,17 @@ const SHAMSI_MONTHS = [
   "اسفند",
 ];
 
+const DEFAULT_SETTINGS = {
+  profitPercent: 2,
+  lossPercent: 1,
+  contractSize: 1000,
+  fee: 0.00206,
+};
+
+function getStorageSettings() {
+  return JSON.parse(localStorage.getItem("trade_settings")) || DEFAULT_SETTINGS;
+}
+
 // تبدیل اعداد انگلیسی به فارسی
 function toPersianDigits(str) {
   return (str + "").replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);

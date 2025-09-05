@@ -32,6 +32,9 @@ const assetsToCache = [
   "/Option_Calculator/strategy_calculator/steategy_calc.html",
   "/Option_Calculator/strategy_calculator/steategy_calc.js",
   "/Option_Calculator/strategy_calculator/strategies.js",
+  "/Option_Calculator/2way_trading_calc/2way_calc.css",
+  "/Option_Calculator/2way_trading_calc/2way_calc.html",
+  "/Option_Calculator/2way_trading_calc/2way_calc.js",
 ];
 
 self.addEventListener("install", function (event) {

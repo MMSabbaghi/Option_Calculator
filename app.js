@@ -11,21 +11,14 @@ const contractSizeEl = document.getElementById("contractSize");
 const feeEl = document.getElementById("fee");
 const saveSettingsBtn = document.getElementById("saveSettingsBtn");
 
-const DEFAULT_SETTINGS = {
-  profitPercent: 2,
-  lossPercent: 1,
-  contractSize: 1000,
-  fee: 0.00206,
-};
-
 function loadSettings() {
-  settings =
-    JSON.parse(localStorage.getItem("trade_settings")) || DEFAULT_SETTINGS;
+  settings = getStorageSettings();
   profitPercentEl.value = settings.profitPercent;
   lossPercentEl.value = settings.lossPercent;
   contractSizeEl.value = settings.contractSize;
   feeEl.value = settings.fee;
 }
+
 loadSettings();
 
 function saveSettings({ profitPercent, lossPercent, contractSize, fee }) {

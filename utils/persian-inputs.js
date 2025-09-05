@@ -61,7 +61,9 @@
       originalDescriptor.set.call(input, cleaned);
 
       const offset = cleaned.length - original.length;
-      input.setSelectionRange(selectionStart + offset, selectionEnd + offset);
+      if (input.type !== "checkbox") {
+        input.setSelectionRange(selectionStart + offset, selectionEnd + offset);
+      }
     });
   }
 

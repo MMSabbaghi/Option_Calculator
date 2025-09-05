@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> پرافیت | دستیار معاملات روزانه </title>
+  <link rel="stylesheet" href="../icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="2way_calc.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="../logo/logo.svg" alt="logo">
+      <h1> دستیار شخصی معاملات </h1>
+    </div>
+
+    <div class="main-content">
+      <h2 class="linear-wipe">ماشین حساب معاملات دوطرفه</h2>
+
+      <div class="stock-select">
+        <div>
+          <i class="bi bi-stars"></i>
+          <span> سهم پایه: </span>
+        </div>
+        <select id="stockSelect" onchange="loadStock()"></select>
+      </div>
+    </div>
+
+    <div id="formContainer" style="display:none;">
+      <div id="formFields" class="form-fields"></div>
+      <div class="calc-btns">
+        <button id="calculateBtn">
+          <i class="bi bi-calculator-fill"></i>
+          <span> محاسبه </span>
+        </button>
+        <div class="left-section">
+          <label for="toggle" class="switch-label">رفرش <br> خودکار: </label>
+          <label class="switch">
+            <input type="checkbox" id="autoRefreshToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      <div id="result" class="result" style="display:none;"></div>
+    </div>
+  </div>
+  </div>
+
+  <div class="loader-overlay" id="loader">
+    <div class="spinner"></div>
+  </div>
+
+  <script src="../utils/persian-inputs.js"></script>
+  <script src="../utils/alert.js"></script>
+  <script src="../utils/jalaali.min.js"></script>
+  <script src="../utils/utils.js"></script>
+  <script src="./2way_calc.js"></script>
+</body>
+
+</html>
