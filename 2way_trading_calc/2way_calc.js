@@ -131,7 +131,7 @@ async function fetchStockData(stock) {
     });
 
     saveData();
-    renderForm();
+    updateForm();
     await updatePrices();
   } catch (e) {
     console.error(e);
@@ -162,7 +162,7 @@ async function updatePrices() {
     });
 
     saveData();
-    renderForm();
+    updateForm();
   } catch (e) {
     console.error(e);
   } finally {
@@ -176,7 +176,10 @@ let intervalId = null;
 autoRefreshToggle.addEventListener("change", () => {
   if (autoRefreshToggle.checked) {
     /// update prices after 5 second
-    intervalId = setInterval(() => updatePrices(), 5000);
+    intervalId = setInterval(() => {
+      updatePrices();
+      updateCalcRes(false);
+    }, 5000);
   } else {
     clearInterval(intervalId);
     intervalId = null;
@@ -265,6 +268,36 @@ function renderForm() {
       document.querySelector(`.contractSellPrice[data-key="${key}"]`).value =
         selected.premium;
     };
+  });
+}
+
+function updateForm() {
+  const stock = getCurrentStock();
+
+  if (stock.contracts.length === 0) {
+    formFields.innerHTML = `<p class="form-error">هیچ قراردادی برای این سهم یافت نشد.</p>`;
+    formContainer.style.display = "block";
+    resultBox.innerHTML = "";
+    return;
+  }
+
+  INPUTS.forEach((input) => {
+    const contracts = stock.contracts.filter((c) => c.type === input.type);
+
+    if (contracts.length === 0) {
+      formFields.innerHTML += `<p class="form-error">هیچ قرارداد  ${
+        input.type === "call" ? "اختیار خریدی" : "اختیار فروشی"
+      } برای این سهم یافت نشد.</p>`;
+      return;
+    }
+    const key = input.key;
+    const contractSelectValue = document.querySelector(
+      `.contractSelect[data-key="${key}"]`
+    ).value;
+    const selected = contracts.find((c) => c.id === contractSelectValue);
+    document.querySelector(`.contractSellPrice[data-key="${key}"]`).value =
+      selected.premium;
+    document.querySelector(".output")?.classList.remove("output");
   });
 }
 
@@ -368,15 +401,17 @@ function getformData() {
   return data;
 }
 
-calculateBtn.addEventListener("click", () => {
+function updateCalcRes(showToast = true) {
   const formData = getformData();
   for (const contarct in formData) {
     const { isValid, msg } = validateContarctData(formData[contarct]);
     if (!isValid) {
-      showToast(msg, "error");
+      if (showToast) showToast(msg, "error");
       resultBox.style.display = "none";
       return;
     }
   }
   renderCalcResult(formData);
-});
+}
+
+calculateBtn.addEventListener("click", updateCalcRes);
