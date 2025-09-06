@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fa">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navbar & Loader Demo</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .navbar.open {
+            transform: translateX(0);
+        }
+
+        .backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            z-index: 900;
+        }
+
+        .backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .hamburger {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            background: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .close-btn {
+            margin-top: 20px;
+            padding: 8px 12px;
+            border: none;
+            background: #ff4d4d;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* --- Loader --- */
+        .loader-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            z-index: 1200;
+        }
+
+        .loader-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .content {
+            padding: 80px 20px;
+        }
+
+        .btn-loader {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hamburger Button -->
+    <button class="hamburger">☰</button> <!-- Navbar -->
+    <div class="navbar" id="navbar">
+        <h2>منو</h2>
+        <ul>
+            <li>خانه</li>
+            <li>درباره</li>
+            <li>تماس</li>
+        </ul>
+        <button class="close-btn" id="closeNavbar">بستن</button>
+    </div> <!-- Backdrop -->
+    <div class="backdrop" id="backdrop"></div> <!-- Loader Backdrop -->
+    <div class="loader-backdrop" id="loaderBackdrop">
+        <div class="spinner"></div>
+    </div> <!-- Main Content -->
+    <div class="content">
+        <h1>دمو صفحه</h1>
+        <button class="btn-loader" id="showLoader">نمایش لودر</button>
+    </div>
+    <script>
+        const navbar = document.getElementById('navbar');
+        const backdrop = document.getElementById('backdrop');
+        const hamburger = document.querySelector('.hamburger');
+        const closeNavbar = document.getElementById('closeNavbar');
+
+        hamburger.addEventListener('click', () => {
+            navbar.classList.add('open');
+            backdrop.classList.add('show');
+        });
+
+        closeNavbar.addEventListener('click', () => {
+            navbar.classList.remove('open');
+            backdrop.classList.remove('show');
+        });
+
+        backdrop.addEventListener('click', () => {
+            navbar.classList.remove('open');
+            backdrop.classList.remove('show');
+        });
+
+        // Loader
+        const loaderBackdrop = document.getElementById('loaderBackdrop');
+        const showLoader = document.getElementById('showLoader');
+
+        showLoader.addEventListener('click', () => {
+            loaderBackdrop.classList.add('show');
+            setTimeout(() => {
+                loaderBackdrop.classList.remove('show');
+            }, 5000);
+        });
+    </script>
+</body>
+
+</html>

@@ -11,13 +11,26 @@
 </head>
 
 <body>
+  <div class="navbar" id="navbar">
+    <h2 class="linear-wipe">منوی برنامه</h2>
+    <ul class="nav-items">
+      <li><a href="/">محاسبه سود و زیان معاملات</a></li>
+      <li><a href="/strategy_calculator/steategy_calc.html"> ماشین حساب استراتژی ها </a></li>
+      <li><a href="/2way_trading_calc/2way_calc.html"> ماشین حساب معاملات دوطرفه </a></li>
+    </ul>
+  </div>
+  <div class="navbar-backdrop" id="backdrop"></div>
+
   <div class="container">
     <div class="logo">
       <img src="./logo/logo.svg" alt="logo">
-      <h1> دستیار شخصی معاملات </h1>
+      <div class="logo-right">
+        <h1> دستیار شخصی معاملات </h1>
+        <button class="hamburger"><i class="bi bi-list"></i></button>
+      </div>
     </div>
 
-    <div class="alert">
+    <!-- <div class="alert">
       <p>
         <i class="bi bi-stars"></i>
         امکان جدید :
@@ -25,16 +38,7 @@
           ماشین حساب استراتژی های اختیار معامله
         </a>
       </p>
-    </div>
-    <div class="alert">
-      <p>
-        <i class="bi bi-stars"></i>
-        امکان جدید :
-        <a href="./2way_trading_calc/2way_calc.html">
-          ماشین حساب معاملات دوطرفه
-        </a>
-      </p>
-    </div>
+    </div> -->
 
     <h2 class="linear-wipe" style="margin-bottom: 5px;"> محاسبه سود و زیان معاملات </h2>
 
@@ -184,6 +188,7 @@
   </div>
 
   <script src="./utils/persian-inputs.js"></script>
+  <script src="./utils/navbar.js"></script>
   <script src="./utils/alert.js"></script>
   <script src="./utils/confirm.js"></script>
   <script src="./utils/jalaali.min.js"></script>
