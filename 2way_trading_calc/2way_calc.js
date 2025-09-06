@@ -425,7 +425,7 @@ document.getElementById("saveTradeBtn").addEventListener("click", async (e) => {
   const { callOption, putOption } = formData;
   const { isValid, msg } = validateFormData(formData);
 
-  if (isValid) {
+  if (isValid && confirm("آیا برای ذخیره اطمینان دارید ؟")) {
     const { percent, profit, totalTradeCost } = calcTradeResault(formData);
     const trade = {
       id: Date.now().toString(),
@@ -453,7 +453,7 @@ document.getElementById("saveTradeBtn").addEventListener("click", async (e) => {
     const { isSucsess } = await saveDataToSheet(trade);
     if (isSucsess) renderForm();
     hideLoader();
-  } else {
+  } else if (!isValid) {
     showToast(msg, "error");
   }
 });
