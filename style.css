@@ -84,7 +84,7 @@ body {
 }
 
 .logo img {
-  width: 140px;
+  max-width: 140px;
   margin-bottom: 5px;
 }
 
@@ -599,6 +599,10 @@ button:hover {
   .container {
     padding: 20px;
     width: 90%;
+  }
+
+  .logo img {
+    max-width: 90px;
   }
 
   input,
