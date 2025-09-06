@@ -26,13 +26,6 @@ function getCurrentStrategy() {
   return strategies.find((s) => s.name === strategySelect.value);
 }
 
-function showLoader() {
-  document.getElementById("loader").style.display = "flex";
-}
-
-function hideLoader() {
-  document.getElementById("loader").style.display = "none";
-}
 ///////////////////////
 
 window.onload = () => {

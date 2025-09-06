@@ -23,15 +23,11 @@ function getCurrentStock() {
   return stocks.find((s) => s.id === stockSelect.value);
 }
 
-function getCurrentStrategy() {}
-
-function showLoader() {
-  document.getElementById("loader").style.display = "flex";
+function getContracts() {
+  const stock = getCurrentStock();
+  return stock.contracts;
 }
 
-function hideLoader() {
-  document.getElementById("loader").style.display = "none";
-}
 ///////////////////////
 
 window.onload = () => {
@@ -52,9 +48,9 @@ function populateSelect() {
 }
 
 function loadStock() {
-  const stock = getCurrentStock();
+  const contracts = getContracts();
 
-  if (stock.contracts.length > 0) {
+  if (contracts.length > 0) {
     updatePrices();
     renderForm();
   } else {
@@ -146,7 +142,8 @@ async function fetchStockData(stock) {
 
 async function updatePrices() {
   const stock = getCurrentStock();
-  if (stock.contracts.length === 0) return;
+  const contracts = getContracts();
+  if (contracts.length === 0) return;
 
   showLoader();
   try {
@@ -155,7 +152,7 @@ async function updatePrices() {
     const res = await fetch(apiURL);
     const data = await res.json();
 
-    stock.contracts.forEach((contract) => {
+    contracts.forEach((contract) => {
       const found = data.find((entry) => entry.id === contract.id);
       contract.premium = found ? found.close : 0;
       contract.iv = found ? found.iv : 0;
@@ -194,10 +191,10 @@ function saveData() {
 stockSelect.addEventListener("change", renderForm);
 
 function renderForm() {
-  const stock = getCurrentStock();
+  const contracts = getContracts();
   formFields.innerHTML = "";
 
-  if (stock.contracts.length === 0) {
+  if (contracts.length === 0) {
     formFields.innerHTML = `<p class="form-error">هیچ قراردادی برای این سهم یافت نشد.</p>`;
     formContainer.style.display = "block";
     resultBox.innerHTML = "";
@@ -205,16 +202,16 @@ function renderForm() {
   }
 
   INPUTS.forEach((input) => {
-    const contracts = stock.contracts.filter((c) => c.type === input.type);
+    const filteredContracts = contracts.filter((c) => c.type === input.type);
 
-    if (contracts.length === 0) {
+    if (filteredContracts.length === 0) {
       formFields.innerHTML += `<p class="form-error">هیچ قرارداد  ${
         input.type === "call" ? "اختیار خریدی" : "اختیار فروشی"
       } برای این سهم یافت نشد.</p>`;
       return;
     }
 
-    const options = contracts.map(
+    const options = filteredContracts.map(
       (c) =>
         `<option value="${c.id}">${toPersianDigits(
           c.name
@@ -261,10 +258,10 @@ function renderForm() {
   document.querySelectorAll(".contractSelect").forEach((select) => {
     select.onchange = function () {
       const key = this.dataset.key;
-      const contracts = stock.contracts.filter(
+      const filteredContracts = contracts.filter(
         (c) => c.type === (key.includes("call") ? "call" : "put")
       );
-      const selected = contracts.find((c) => c.id === this.value);
+      const selected = filteredContracts.find((c) => c.id === this.value);
       document.querySelector(`.contractSellPrice[data-key="${key}"]`).value =
         selected.premium;
     };
@@ -272,9 +269,9 @@ function renderForm() {
 }
 
 function updateForm() {
-  const stock = getCurrentStock();
+  const allContracts = getContracts();
 
-  if (stock.contracts.length === 0) {
+  if (allContracts.length === 0) {
     formFields.innerHTML = `<p class="form-error">هیچ قراردادی برای این سهم یافت نشد.</p>`;
     formContainer.style.display = "block";
     resultBox.innerHTML = "";
@@ -282,7 +279,7 @@ function updateForm() {
   }
 
   INPUTS.forEach((input) => {
-    const contracts = stock.contracts.filter((c) => c.type === input.type);
+    const contracts = allContracts.filter((c) => c.type === input.type);
 
     if (contracts.length === 0) {
       formFields.innerHTML += `<p class="form-error">هیچ قرارداد  ${
@@ -383,8 +380,17 @@ const validateContarctData = ({ buyPrice, sellPrice, qty, key }) => {
   return { isValid: true, msg: "داده معتبر است" };
 };
 
+function validateFormData(formData) {
+  for (const contarct in formData) {
+    const { isValid, msg } = validateContarctData(formData[contarct]);
+    if (!isValid) return { isValid, msg };
+  }
+  return { isValid: true, msg: "داده معتبر است" };
+}
+
 function getformData() {
   const data = {};
+
   INPUTS.forEach((input) => {
     const key = input.key;
     const sellPrice = +document.querySelector(
@@ -395,23 +401,59 @@ function getformData() {
     ).value;
     const qty = +document.querySelector(`.contractQty[data-key="${key}"]`)
       .value;
-    data[key] = { sellPrice, buyPrice, qty, key };
+    data[key] = { key, sellPrice, buyPrice, qty };
   });
 
   return data;
 }
 
-function updateCalcRes(showToast = true) {
+function updateCalcRes(showError = true) {
   const formData = getformData();
-  for (const contarct in formData) {
-    const { isValid, msg } = validateContarctData(formData[contarct]);
-    if (!isValid) {
-      if (showToast) showToast(msg, "error");
-      resultBox.style.display = "none";
-      return;
-    }
+  const { isValid, msg } = validateFormData(formData);
+  if (!isValid) {
+    if (showError) showToast(msg, "error");
+    resultBox.style.display = "none";
+    return;
   }
   renderCalcResult(formData);
 }
 
 calculateBtn.addEventListener("click", updateCalcRes);
+
+document.getElementById("saveTradeBtn").addEventListener("click", async (e) => {
+  const formData = getformData();
+  const { callOption, putOption } = formData;
+  const { isValid, msg } = validateFormData(formData);
+
+  if (isValid) {
+    const { percent, profit, totalTradeCost } = calcTradeResault(formData);
+    const trade = {
+      id: Date.now().toString(),
+      datetime: new Date(),
+      profit,
+      percent,
+      totalcost: totalTradeCost,
+      sellprice: `خ:${callOption.sellPrice} -  ف:${putOption.sellPrice} `,
+      steps: JSON.stringify([
+        {
+          id: crypto.randomUUID(),
+          price: callOption.buyPrice,
+          qty: callOption.qty,
+        },
+        {
+          id: crypto.randomUUID(),
+          price: putOption.buyPrice,
+          qty: putOption.qty,
+        },
+      ]),
+      instrument: `دوطرفه - ${toPersianDigits(getCurrentStock().name)}`,
+    };
+
+    showLoader();
+    const { isSucsess } = await saveDataToSheet(trade);
+    if (isSucsess) renderForm();
+    hideLoader();
+  } else {
+    showToast(msg, "error");
+  }
+});

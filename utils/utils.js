@@ -63,6 +63,14 @@ function closeModal(id = "modal") {
   document.getElementById(id).classList.remove("active");
 }
 
+function showLoader() {
+  document.getElementById("loader").style.display = "flex";
+}
+
+function hideLoader() {
+  document.getElementById("loader").style.display = "none";
+}
+
 // تعداد روز های باقی مانده تا سررسید
 // ورودی به صورت : 14040503
 function getDaysUntilMaturity(jalaliStr) {

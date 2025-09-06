@@ -1,5 +1,3 @@
-const SHEETDB_API = "https://sheetdb.io/api/v1/4xkud7vrc6wtz";
-
 let allTrades = [];
 let filteredData = [];
 let settings = {};
@@ -81,21 +79,6 @@ function addStep() {
 
 function removeStep(btn) {
   btn.parentElement.remove();
-}
-
-async function saveTradeToSheet(trade) {
-  try {
-    await fetch(SHEETDB_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: trade }),
-    });
-    showToast("معامله با موفقیت ثبت شد.", "success");
-    return { isSucsess: true };
-  } catch (error) {
-    showToast("خطا در ذخیره سازی داده ", "error");
-    return { isSucsess: false };
-  }
 }
 
 function calculateTradeResults({ steps, sellPriceVal }) {
@@ -210,8 +193,7 @@ const emptyForm = () => {
   `;
 };
 
-const saveBtn = document.getElementById("saveTradeBtn");
-saveBtn.addEventListener("click", (e) => {
+document.getElementById("saveTradeBtn").addEventListener("click", (e) => {
   const { sellPriceVal, steps } = getTradeFormData();
   const { isValid, msg } = isValidTrade({ sellPriceVal, steps });
 
@@ -236,13 +218,10 @@ saveBtn.addEventListener("click", (e) => {
           instrument: toPersianDigits(instrument),
         };
 
-        saveBtn.disabled = true;
-        const prevHtml = saveBtn.innerHTML;
-        saveBtn.innerHTML = `<span class="loader"></span>`;
-        const { isSucsess } = await saveTradeToSheet(trade);
+        showLoader();
+        const { isSucsess } = await saveDataToSheet(trade);
         if (isSucsess) emptyForm();
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = prevHtml;
+        hideLoader();
       } else {
         showToast(" نام وارد شده باید حداقل شامل دو حرف باشد. ", "error");
       }
@@ -377,7 +356,7 @@ const renderTradesData = (data) => {
         
         <div class="trade-item-row">
         <div class="trade-item-label">قیمت فروش : </div>
-        <div class="trade-item-value">${formatWithSeparatorsFa(+row.sellprice)}
+        <div class="trade-item-value">${formatWithSeparatorsFa(row.sellprice)}
         </div>
         </div>
         
@@ -433,8 +412,7 @@ document.getElementById("showTradesBtn").addEventListener("click", async () => {
   `;
   container.style.display = "block";
 
-  const res = await fetch(SHEETDB_API);
-  allTrades = await res.json();
+  allTrades = await getDataFromSheet();
   // allTrades = [...RAW_DATA];
 
   renderTradesList(allTrades);
